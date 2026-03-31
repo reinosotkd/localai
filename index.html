@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq AI Chat - Stable</title>
+    <title>Lumina AI - Modern Chat</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -36,49 +36,61 @@
             display: flex;
             flex-direction: column;
             padding: 10px;
+            transition: all 0.3s;
         }
+
+        .sidebar-header {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 10px;
+            margin: 4px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-item:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .chat-item.active { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
         .new-chat-btn {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 12px;
+            padding: 10px;
             border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
+            width: 100%;
+            margin-bottom: 10px;
             transition: background 0.2s;
+            font-size: 13px;
         }
 
         .new-chat-btn:hover { background: rgba(255,255,255,0.1); }
 
-        .model-section {
+        .google-login-section {
             margin-top: auto;
-            padding: 15px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-
-        .model-section h3 {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .model-select {
-            width: 100%;
-            padding: 8px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
+            padding: 10px;
+            border-top: 1px solid var(--border);
         }
 
         .main { flex: 1; display: flex; flex-direction: column; position: relative; }
@@ -177,23 +189,37 @@
         .input-wrapper {
             max-width: 800px; margin: 0 auto; position: relative;
             background: var(--bg-secondary); border: 1px solid var(--border);
-            border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            border-radius: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            display: flex; align-items: flex-end; padding: 6px 12px;
+        }
+
+        .plus-btn {
+            background: transparent; border: none; color: var(--text-secondary);
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; transition: all 0.2s;
+        }
+        .plus-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+        .model-select-mini {
+            background: transparent; border: none; color: var(--text-secondary);
+            font-size: 11px; padding: 4px 8px; cursor: pointer; outline: none;
+            max-width: 120px;
         }
 
         .message-input {
-            width: 100%; background: transparent; border: none;
-            color: var(--text-primary); padding: 15px 50px 15px 20px;
-            font-size: 16px; resize: none; outline: none;
-            min-height: 56px; max-height: 200px; font-family: inherit;
+            flex: 1; background: transparent; border: none;
+            color: var(--text-primary); padding: 8px 10px;
+            font-size: 15px; resize: none; outline: none;
+            min-height: 36px; max-height: 200px; font-family: inherit;
         }
 
         .send-btn {
-            position: absolute; right: 10px; bottom: 10px;
             background: var(--text-secondary); color: white;
             border: none; width: 32px; height: 32px;
-            border-radius: 6px; cursor: pointer;
+            border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.2s; margin-bottom: 2px;
         }
 
         .send-btn.active { background: var(--accent); }
@@ -204,6 +230,48 @@
         .typing-indicator.active { display: flex; }
 
         .dots { display: flex; gap: 4px; align-items: center; }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            width: 250px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            transition: background 0.2s;
+            text-align: left;
+        }
+
+        .tool-btn:hover { background: rgba(255,255,255,0.1); }
+        .tool-btn small { color: var(--text-secondary); font-size: 11px; }
+
+        /* AI Detector Result Styling */
+        .ai-highlight {
+            color: #ef4444;
+            text-decoration: underline;
+            font-weight: bold;
+        }
         .dot {
             width: 8px; height: 8px; background: var(--text-secondary);
             border-radius: 50%; animation: bounce 1.4s infinite ease-in-out;
@@ -237,39 +305,33 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <button class="new-chat-btn" onclick="newChat()">
-                <span>+</span> Nuevo chat
-            </button>
+            <div class="sidebar-header">
+                <button class="new-chat-btn" onclick="newChat()">
+                    <span>+</span> Nuevo chat
+                </button>
+            </div>
 
-            <div class="model-section">
-                <h3>Modelo Activo</h3>
-                <select class="model-select" id="modelSelect" onchange="updateModel()">
-                    <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B (Versatile)</option>
-                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Instant)</option>
-                    <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 Llama 70B</option>
-                    <option value="deepseek-r1-distill-qwen-32b">DeepSeek R1 Qwen 32B</option>
-                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-                    <option value="gemma2-9b-it">Gemma2 9B</option>
-                    <option value="openai/gpt-oss-120b">GPT OSS 120B</option>
-                    <option value="openai/gpt-oss-20b">GPT OSS 20B</option>
-                    <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout</option>
-                    <option value="qwen/qwen3-32b">Qwen3 32B</option>
-                </select>
+            <div class="chat-list" id="chatList">
+                <!-- Chats se cargan aquí -->
+            </div>
+
+            <div class="google-login-section">
+                <div id="g_id_onload"
+                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                     data-callback="handleCredentialResponse">
+                </div>
+                <div class="g_id_signin" data-type="standard"></div>
             </div>
         </div>
 
         <div class="main">
-            <div class="header">Groq AI Assistant</div>
+            <div class="header">Lumina AI</div>
 
             <div class="error-box" id="errorBox"></div>
 
             <div class="chat-container" id="chatContainer">
                 <div class="welcome" id="welcome">
                     <h1>¿Cómo puedo ayudarte hoy?</h1>
-                    <p style="margin-top: 10px; font-size: 14px;">
-                        ⚠️ <strong>Importante:</strong> Abre la consola (F12) para ver detalles de errores.<br>
-                        Asegúrate de tener créditos en tu cuenta de Groq.
-                    </p>
                 </div>
             </div>
 
@@ -284,7 +346,29 @@
             </div>
 
             <div class="input-container">
+                <div class="tools-menu" id="toolsMenu">
+                    <button class="tool-btn" onclick="openWebCreator()">
+                        <div>
+                            <div>🌐 Crear página web</div>
+                            <small id="webCredits">3 créditos hoy</small>
+                        </div>
+                    </button>
+                    <button class="tool-btn" onclick="openAIDetector()">
+                        <div>
+                            <div>🔍 Detector de IA</div>
+                            <small>Subraya texto artificial</small>
+                        </div>
+                    </button>
+                </div>
                 <div class="input-wrapper">
+                    <button class="plus-btn" onclick="toggleToolsMenu()">+</button>
+                    <select class="model-select-mini" id="modelSelect" onchange="updateModel()">
+                        <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B</option>
+                        <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+                        <option value="deepseek-r1-distill-llama-70b">DeepSeek R1</option>
+                        <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                        <option value="gemma2-9b-it">Gemma2 9B</option>
+                    </select>
                     <textarea 
                         class="message-input" 
                         id="messageInput" 
@@ -298,50 +382,183 @@
         </div>
     </div>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         // ============================================
         // CONFIGURACIÓN - PEGA TU API KEY AQUÍ
         // ============================================
-        const GROQ_API_KEY = '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'; // ← PEGA TU API KEY AQUÍ
+        const GROQ_API_KEY = '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';
         
+        // ============================================
+        // ESTADO GLOBAL
+        // ============================================
+        const BASE_URL = "https://api.groq.com/openai/v1";
+        let currentChatId = Date.now().toString();
+        let chats = JSON.parse(localStorage.getItem('lumina_chats')) || {};
+        let messages = [];
+        let isTyping = false;
+        let currentUser = null;
+
+        // ============================================
+        // GOOGLE LOGIN
+        // ============================================
+        function handleCredentialResponse(response) {
+            const responsePayload = parseJwt(response.credential);
+            currentUser = {
+                id: responsePayload.sub,
+                name: responsePayload.name,
+                email: responsePayload.email,
+                picture: responsePayload.picture
+            };
+            console.log("Logged in as: " + currentUser.name);
+            alert("Bienvenido, " + currentUser.name);
+        }
+
+        function parseJwt(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // ============================================
+        // HISTORIAL DE CHATS
+        // ============================================
+        function saveChat() {
+            if (messages.length === 0) return;
+
+            const title = messages[0].content.substring(0, 30) + (messages[0].content.length > 30 ? '...' : '');
+            chats[currentChatId] = {
+                id: currentChatId,
+                title: title,
+                messages: messages,
+                model: document.getElementById('modelSelect').value,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('lumina_chats', JSON.stringify(chats));
+            renderChatList();
+        }
+
+        function loadChat(id) {
+            saveChat(); // Guardar el actual antes de cambiar
+            currentChatId = id;
+            const chat = chats[id];
+            messages = chat.messages;
+            document.getElementById('modelSelect').value = chat.model;
+
+            // Re-renderizar UI
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = '';
+            messages.forEach(msg => {
+                renderMessage(msg.role, msg.content);
+            });
+
+            document.getElementById('welcome').style.display = 'none';
+            renderChatList();
+        }
+
+        function renderChatList() {
+            const list = document.getElementById('chatList');
+            list.innerHTML = '';
+
+            const sortedChats = Object.values(chats).sort((a, b) => b.timestamp - a.timestamp);
+
+            sortedChats.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+                item.onclick = () => loadChat(chat.id);
+                item.innerHTML = `💬 ${chat.title}`;
+                list.appendChild(item);
+            });
+        }
+
+        function newChat() {
+            saveChat();
+            currentChatId = Date.now().toString();
+            messages = [];
+            document.getElementById('chatContainer').innerHTML = `
+                <div class="welcome" id="welcome">
+                    <h1>¿Cómo puedo ayudarte hoy?</h1>
+                </div>
+            `;
+            renderChatList();
+        }
+
         // ============================================
         // VALIDACIÓN INICIAL
         // ============================================
-        
         function checkApiKey() {
-            if (!GROQ_API_KEY || GROQ_API_KEY === 'TU API KEY AQUÍ') {
-                showError('CONFIGURACIÓN PENDIENTE:\n\n1. Edita el código HTML\n2. Busca la línea: const GROQ_API_KEY\n3. Reemplaza "TU API KEY AQUÍ" con tu clave de Groq\n4. Guarda y recarga la página');
-                return false;
-            }
-            
-            if (!GROQ_API_KEY.startsWith('gsk_')) {
-                showError('La API Key debe comenzar con "gsk_"\n\nVerifica que hayas copiado la clave completa desde https://console.groq.com/keys');
-                return false;
-            }
+            if (!GROQ_API_KEY || GROQ_API_KEY.includes('TU API KEY')) return false;
             return true;
         }
 
-        // Verificar al cargar
         window.onload = () => {
-            checkApiKey();
+            renderChatList();
+            checkCreditReset();
             const savedModel = localStorage.getItem('groq_model');
-            if (savedModel) {
-                document.getElementById('modelSelect').value = savedModel;
-                updateModel();
-            }
+            if (savedModel) document.getElementById('modelSelect').value = savedModel;
         };
-
-        // ============================================
-        // LÓGICA DEL CHAT
-        // ============================================
-        
-        const BASE_URL = "https://api.groq.com/openai/v1";
-        let messages = [];
-        let isTyping = false;
 
         function updateModel() {
             const select = document.getElementById('modelSelect');
             localStorage.setItem('groq_model', select.value);
+            saveChat();
+        }
+
+        // ============================================
+        // TOOLS LOGIC
+        // ============================================
+        let webCredits = parseInt(localStorage.getItem('lumina_web_credits')) || 3;
+        let lastCreditReset = localStorage.getItem('lumina_last_reset') || '';
+
+        function checkCreditReset() {
+            const today = new Date().toDateString();
+            if (lastCreditReset !== today) {
+                webCredits = 3;
+                lastCreditReset = today;
+                localStorage.setItem('lumina_web_credits', webCredits);
+                localStorage.setItem('lumina_last_reset', lastCreditReset);
+            }
+            document.getElementById('webCredits').textContent = `${webCredits} créditos hoy`;
+        }
+
+        function toggleToolsMenu() {
+            const menu = document.getElementById('toolsMenu');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function openWebCreator() {
+            checkCreditReset();
+            if (webCredits <= 0) {
+                alert("No te quedan créditos de Web Creator por hoy. Vuelve mañana.");
+                return;
+            }
+            const prompt = prompt("¿Qué tipo de página web quieres crear? (Ej: Una landing page de café)");
+            if (prompt) {
+                webCredits--;
+                localStorage.setItem('lumina_web_credits', webCredits);
+                checkCreditReset();
+                sendMessage(`ACTÚA COMO WEB CREATOR: Crea el código HTML/CSS completo para: ${prompt}. Responde solo con el código dentro de un bloque de código.`);
+            }
+            toggleToolsMenu();
+        }
+
+        function openAIDetector() {
+            const text = prompt("Pega el texto que quieres analizar:");
+            if (text) {
+                // Simulación de detección: resaltamos palabras comunes de IA
+                const aiWords = ["en el vasto", "es fundamental", "en conclusión", "por otro lado", "cabe destacar", "en resumen"];
+                let detectedText = text;
+                aiWords.forEach(word => {
+                    const regex = new RegExp(`(${word})`, 'gi');
+                    detectedText = detectedText.replace(regex, '<span class="ai-highlight">$1</span>');
+                });
+
+                renderMessage('assistant', `<b>Resultado del Análisis:</b><br><br>${detectedText}<br><br><small>Las zonas en rojo indican patrones comunes de IA.</small>`);
+            }
+            toggleToolsMenu();
         }
 
         function autoResize(textarea) {
@@ -379,6 +596,12 @@
         const ROBOT_ICON = `<svg viewBox="0 0 24 24"><path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.59,5.39 13,5.73V7H14A3,3 0 0,1 17,10V11H18A2,2 0 0,1 20,13V17A2,2 0 0,1 18,19H17V20A2,2 0 0,1 15,22H9A2,2 0 0,1 7,20V19H6A2,2 0 0,1 4,17V13A2,2 0 0,1 6,11H7V10A3,3 0 0,1 10,7H11V5.73C10.41,5.39 10,4.74 10,4A2,2 0 0,1 12,2M7.5,13A1.5,1.5 0 0,0 6,14.5A1.5,1.5 0 0,0 7.5,16A1.5,1.5 0 0,0 9,14.5A1.5,1.5 0 0,0 7.5,13M16.5,13A1.5,1.5 0 0,0 15,14.5A1.5,1.5 0 0,0 16.5,16A1.5,1.5 0 0,0 18,14.5A1.5,1.5 0 0,0 16.5,13M12,14L10.75,17H13.25L12,14Z"/></svg>`;
 
         function addMessage(role, content) {
+            messages.push({ role, content });
+            renderMessage(role, content);
+            saveChat();
+        }
+
+        function renderMessage(role, content) {
             const container = document.getElementById('chatContainer');
             const welcome = document.getElementById('welcome');
             if (welcome) welcome.style.display = 'none';
@@ -386,11 +609,19 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
             
-            const formattedContent = content
+            // Limpiar etiquetas de la IA si vienen como string pero procesar las nuestras
+            let formattedContent = content
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>') // Asteriscos a negrita real
+                .replace(/>/g, '&gt;');
+
+            // Fix <b> tag error: convert escaped tags back for safe ones we want
+            formattedContent = formattedContent
+                .replace(/&lt;b&gt;/g, '<b>')
+                .replace(/&lt;\/b&gt;/g, '</b>')
+                .replace(/&lt;span class="ai-highlight"&gt;/g, '<span class="ai-highlight">')
+                .replace(/&lt;\/span&gt;/g, '</span>')
+                .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
                 .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
                 .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/\n/g, '<br>');
@@ -414,28 +645,28 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        async function sendMessage() {
+        async function sendMessage(overrideContent = null) {
             if (!checkApiKey()) return;
             
             const input = document.getElementById('messageInput');
             const model = document.getElementById('modelSelect').value;
-            const content = input.value.trim();
+            const content = overrideContent || input.value.trim();
             
             if (!content || isTyping) return;
 
-            // Agregar mensaje usuario
             addMessage('user', content);
-            messages.push({ role: 'user', content });
             
             // Crear copia de mensajes para la API con el system prompt
             const apiMessages = [
                 { role: "system", content: "Responde de forma resumida, usando negritas en lugar de asteriscos y agrega unos pocos emojis relevantes." },
-                ...messages
+                ...messages.slice(-10) // Enviar solo los últimos 10 para ahorrar tokens
             ];
 
-            // Limpiar input
-            input.value = '';
-            input.style.height = 'auto';
+            // Limpiar input si no es un comando de herramienta
+            if (!overrideContent) {
+                input.value = '';
+                input.style.height = 'auto';
+            }
             document.getElementById('sendBtn').disabled = true;
             document.getElementById('sendBtn').classList.remove('active');
 
@@ -483,13 +714,10 @@
                 }
 
                 const data = await response.json();
-                console.log('[Success]', data);
-                
                 const assistantMessage = data.choices[0].message.content;
                 
                 document.getElementById('typingIndicator').classList.remove('active');
                 addMessage('assistant', assistantMessage);
-                messages.push({ role: 'assistant', content: assistantMessage });
 
             } catch (error) {
                 document.getElementById('typingIndicator').classList.remove('active');
@@ -500,18 +728,7 @@
             }
         }
 
-        function newChat() {
-            messages = [];
-            document.getElementById('chatContainer').innerHTML = `
-                <div class="welcome" id="welcome">
-                    <h1>¿Cómo puedo ayudarte hoy?</h1>
-                    <p style="margin-top: 10px; font-size: 14px;">
-                        ⚠️ <strong>Importante:</strong> Abre la consola (F12) para ver detalles de errores.<br>
-                        Asegúrate de tener créditos en tu cuenta de Groq.
-                    </p>
-                </div>
-            `;
-        }
+        // Borrar la función duplicada de abajo si existe
     </script>
 </body>
 </html>

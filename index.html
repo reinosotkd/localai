@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groq AI Chat - Stable</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #343541;
+            --bg-secondary: #444654;
+            --bg-sidebar: #202123;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8ea0;
+            --accent: #10a37f;
+            --accent-hover: #0d8c6d;
+            --border: #4d4d4f;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container { display: flex; height: 100vh; }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .new-chat-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+
+        .new-chat-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .model-section {
+            margin-top: auto;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .model-section h3 {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .model-select {
+            width: 100%;
+            padding: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .main { flex: 1; display: flex; flex-direction: column; position: relative; }
+
+        .header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            font-weight: 600;
+            background: var(--bg-primary);
+        }
+
+        .debug-info {
+            background: var(--bg-sidebar);
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            font-size: 11px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chat-container { flex: 1; overflow-y: auto; padding-bottom: 100px; }
+
+        .welcome {
+            text-align: center;
+            margin-top: 20vh;
+            color: var(--text-secondary);
+            padding: 0 20px;
+        }
+
+        .welcome h1 { color: var(--text-primary); font-size: 2rem; margin-bottom: 10px; }
+
+        .message {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user { background: var(--bg-primary); }
+        .message.assistant { background: var(--bg-secondary); }
+
+        .avatar {
+            width: 30px; height: 30px; border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; flex-shrink: 0; font-size: 12px;
+        }
+
+        .message.user .avatar { background: #5436da; }
+        .message.assistant .avatar { background: var(--accent); }
+
+        .message-content { flex: 1; line-height: 1.6; white-space: pre-wrap; }
+        .message-content p { margin-bottom: 10px; }
+        .message-content code {
+            background: rgba(0,0,0,0.2); padding: 2px 6px;
+            border-radius: 3px; font-family: 'Courier New', monospace;
+        }
+        .message-content pre {
+            background: rgba(0,0,0,0.3); padding: 15px;
+            border-radius: 6px; overflow-x: auto; margin: 10px 0;
+        }
+
+        .input-container {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, var(--bg-primary), transparent);
+            padding: 20px;
+        }
+
+        .input-wrapper {
+            max-width: 800px; margin: 0 auto; position: relative;
+            background: var(--bg-secondary); border: 1px solid var(--border);
+            border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .message-input {
+            width: 100%; background: transparent; border: none;
+            color: var(--text-primary); padding: 15px 50px 15px 20px;
+            font-size: 16px; resize: none; outline: none;
+            min-height: 56px; max-height: 200px; font-family: inherit;
+        }
+
+        .send-btn {
+            position: absolute; right: 10px; bottom: 10px;
+            background: var(--text-secondary); color: white;
+            border: none; width: 32px; height: 32px;
+            border-radius: 6px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .send-btn.active { background: var(--accent); }
+        .send-btn.active:hover { background: var(--accent-hover); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .typing-indicator { display: none; padding: 20px; background: var(--bg-secondary); }
+        .typing-indicator.active { display: flex; }
+
+        .dots { display: flex; gap: 4px; align-items: center; }
+        .dot {
+            width: 8px; height: 8px; background: var(--text-secondary);
+            border-radius: 50%; animation: bounce 1.4s infinite ease-in-out;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .error-box {
+            background: var(--error); color: white;
+            padding: 12px; border-radius: 6px;
+            margin: 10px auto; max-width: 800px;
+            font-size: 14px; display: none;
+            white-space: pre-wrap;
+        }
+
+        .api-status {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 5px;
+            background: var(--error);
+        }
+        .api-status.ready { background: var(--accent); }
+
+        @media (max-width: 768px) { .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <button class="new-chat-btn" onclick="newChat()">
+                <span>+</span> Nuevo chat
+            </button>
+            
+            <div class="model-section">
+                <h3>Modelo Activo</h3>
+                <select class="model-select" id="modelSelect" onchange="updateModel()">
+                    <!-- SOLO MODELOS 100% ACTIVOS SEGÚN DOCUMENTACIÓN GROQ 2026 -->
+                    <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B (Recomendado)</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Rápido)</option>
+                    <option value="openai/gpt-oss-120b">GPT OSS 120B</option>
+                    <option value="openai/gpt-oss-20b">GPT OSS 20B</option>
+                    <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout</option>
+                    <option value="qwen/qwen3-32b">Qwen3 32B</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="header">Groq AI Assistant</div>
+            <div class="debug-info">
+                <span class="api-status" id="apiStatus"></span>
+                <span id="statusText">Verificando API Key...</span> | 
+                Modelo: <span id="currentModel">Llama 3.3 70B (Recomendado)</span>
+            </div>
+
+            <div class="error-box" id="errorBox"></div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome" id="welcome">
+                    <h1>¿Cómo puedo ayudarte hoy?</h1>
+                    <p style="margin-top: 10px; font-size: 14px;">
+                        ⚠️ <strong>Importante:</strong> Abre la consola (F12) para ver detalles de errores.<br>
+                        Asegúrate de tener créditos en tu cuenta de Groq.
+                    </p>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message assistant" style="width: 100%; max-width: 800px;">
+                    <div class="avatar">AI</div>
+                    <div class="dots">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Escribe un mensaje..."
+                        rows="1"
+                        oninput="autoResize(this)"
+                        onkeydown="handleKeyDown(event)"></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>↑</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN - PEGA TU API KEY AQUÍ
+        // ============================================
+        const GROQ_API_KEY = 'gsk_tu_api_key_aqui'; // ← REEMPLAZA ESTO
+        
+        // ============================================
+        // VALIDACIÓN INICIAL
+        // ============================================
+        
+        function checkApiKey() {
+            const statusDot = document.getElementById('apiStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (!GROQ_API_KEY || GROQ_API_KEY === 'gsk_tu_api_key_aqui') {
+                statusDot.classList.remove('ready');
+                statusText.textContent = '❌ API Key no configurada';
+                showError('CONFIGURACIÓN PENDIENTE:\n\n1. Edita el código HTML\n2. Busca la línea: const GROQ_API_KEY\n3. Reemplaza el valor con tu clave de Groq\n4. Guarda y recarga la página');
+                return false;
+            }
+            
+            if (!GROQ_API_KEY.startsWith('gsk_')) {
+                statusDot.classList.remove('ready');
+                statusText.textContent = '⚠️ API Key inválida';
+                showError('La API Key debe comenzar con "gsk_"\n\nVerifica que hayas copiado la clave completa desde https://console.groq.com/keys');
+                return false;
+            }
+            
+            statusDot.classList.add('ready');
+            statusText.textContent = '✓ API Key configurada';
+            return true;
+        }
+
+        // Verificar al cargar
+        window.onload = () => {
+            checkApiKey();
+            const savedModel = localStorage.getItem('groq_model');
+            if (savedModel) {
+                document.getElementById('modelSelect').value = savedModel;
+                updateModel();
+            }
+        };
+
+        // ============================================
+        // LÓGICA DEL CHAT
+        // ============================================
+        
+        const BASE_URL = "https://api.groq.com/openai/v1";
+        let messages = [];
+        let isTyping = false;
+
+        function updateModel() {
+            const select = document.getElementById('modelSelect');
+            const modelName = select.options[select.selectedIndex].text;
+            document.getElementById('currentModel').textContent = modelName;
+            localStorage.setItem('groq_model', select.value);
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+            
+            const btn = document.getElementById('sendBtn');
+            const hasText = textarea.value.trim().length > 0;
+            const hasKey = GROQ_API_KEY && GROQ_API_KEY !== 'gsk_tu_api_key_aqui';
+            
+            if (hasText && hasKey) {
+                btn.classList.add('active');
+                btn.disabled = false;
+            } else {
+                btn.classList.remove('active');
+                btn.disabled = true;
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function showError(msg) {
+            console.error('[Groq Chat Error]', msg);
+            const errorBox = document.getElementById('errorBox');
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+            setTimeout(() => { errorBox.style.display = 'none'; }, 10000);
+        }
+
+        function addMessage(role, content) {
+            const container = document.getElementById('chatContainer');
+            const welcome = document.getElementById('welcome');
+            if (welcome) welcome.style.display = 'none';
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = role === 'user' ? 'Tú' : 'AI';
+            const formattedContent = content
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+            
+            messageDiv.innerHTML = `
+                <div class="avatar">${avatar}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            if (!checkApiKey()) return;
+            
+            const input = document.getElementById('messageInput');
+            const model = document.getElementById('modelSelect').value;
+            const content = input.value.trim();
+            
+            if (!content || isTyping) return;
+
+            // Agregar mensaje usuario
+            addMessage('user', content);
+            messages.push({ role: 'user', content });
+            
+            // Limpiar input
+            input.value = '';
+            input.style.height = 'auto';
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('sendBtn').classList.remove('active');
+
+            // Mostrar typing
+            isTyping = true;
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            console.log('[Request]', { model, messages_count: messages.length });
+
+            try {
+                const response = await fetch(`${BASE_URL}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${GROQ_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: messages,
+                        temperature: 0.7,
+                        max_completion_tokens: 4096
+                    })
+                });
+
+                console.log('[Response Status]', response.status, response.statusText);
+
+                // Manejo detallado de errores HTTP
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('[API Error]', errorData);
+                    
+                    let errorMsg = `Error ${response.status}: ${response.statusText}`;
+                    
+                    if (response.status === 401) {
+                        errorMsg = 'Error 401: API Key inválida o expirada.\n\nVerifica tu clave en https://console.groq.com/keys';
+                    } else if (response.status === 404) {
+                        errorMsg = `Error 404: Modelo "${model}" no encontrado.\n\nEste modelo puede haber sido eliminado. Prueba con "Llama 3.3 70B" que es el más estable.`;
+                    } else if (response.status === 429) {
+                        errorMsg = 'Error 429: Límite de peticiones excedido.\n\nEspera un momento o verifica tus créditos en Groq.';
+                    } else if (errorData.error?.message) {
+                        errorMsg = `Error: ${errorData.error.message}`;
+                    }
+                    
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                console.log('[Success]', data);
+                
+                const assistantMessage = data.choices[0].message.content;
+                
+                document.getElementById('typingIndicator').classList.remove('active');
+                addMessage('assistant', assistantMessage);
+                messages.push({ role: 'assistant', content: assistantMessage });
+
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                showError(error.message);
+                console.error('[Catch Error]', error);
+            } finally {
+                isTyping = false;
+            }
+        }
+
+        function newChat() {
+            messages = [];
+            document.getElementById('chatContainer').innerHTML = `
+                <div class="welcome" id="welcome">
+                    <h1>¿Cómo puedo ayudarte hoy?</h1>
+                    <p style="margin-top: 10px; font-size: 14px;">
+                        ⚠️ <strong>Importante:</strong> Abre la consola (F12) para ver detalles de errores.<br>
+                        Asegúrate de tener créditos en tu cuenta de Groq.
+                    </p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

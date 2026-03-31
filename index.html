@@ -54,20 +54,15 @@
 
         .new-chat-btn:hover { background: rgba(255,255,255,0.1); }
 
-        .model-section, .api-section {
-            margin-top: 10px;
+        .model-section {
+            margin-top: auto;
             padding: 15px;
             background: rgba(255,255,255,0.05);
             border-radius: 6px;
             border: 1px solid var(--border);
         }
 
-        .api-section {
-            margin-top: auto;
-            margin-bottom: 10px;
-        }
-
-        .model-section h3, .api-section h3 {
+        .model-section h3 {
             font-size: 12px;
             color: var(--text-secondary);
             margin-bottom: 8px;
@@ -241,14 +236,6 @@
                     <option value="qwen/qwen3-32b">Qwen3 32B</option>
                 </select>
             </div>
-
-            <div class="api-section">
-                <h3>Configuración API</h3>
-                <input type="password" id="apiKeyInput" class="model-select" placeholder="gsk_..." style="margin-bottom: 8px;">
-                <button class="new-chat-btn" onclick="saveApiKey()" style="width: 100%; margin-bottom: 0; padding: 8px; justify-content: center; font-size: 12px;">
-                    Guardar API Key
-                </button>
-            </div>
         </div>
 
         <div class="main">
@@ -297,25 +284,10 @@
 
     <script>
         // ============================================
-        // CONFIGURACIÓN DE LA API
+        // CONFIGURACIÓN - PEGA TU API KEY AQUÍ
         // ============================================
-        let GROQ_API_KEY = localStorage.getItem('groq_api_key') || '';
+        const GROQ_API_KEY = 'TU API KEY AQUÍ'; // ← PEGA TU API KEY AQUÍ
         
-        function saveApiKey() {
-            const input = document.getElementById('apiKeyInput');
-            const key = input.value.trim();
-
-            if (key && key.startsWith('gsk_')) {
-                GROQ_API_KEY = key;
-                localStorage.setItem('groq_api_key', key);
-                checkApiKey();
-                alert('API Key guardada correctamente');
-                autoResize(document.getElementById('messageInput'));
-            } else {
-                alert('Por favor, ingresa una API Key válida (debe comenzar con gsk_)');
-            }
-        }
-
         // ============================================
         // VALIDACIÓN INICIAL
         // ============================================
@@ -323,23 +295,23 @@
         function checkApiKey() {
             const statusDot = document.getElementById('apiStatus');
             const statusText = document.getElementById('statusText');
-            const apiInput = document.getElementById('apiKeyInput');
             
-            if (!GROQ_API_KEY) {
+            if (!GROQ_API_KEY || GROQ_API_KEY === 'TU API KEY AQUÍ') {
                 statusDot.classList.remove('ready');
                 statusText.textContent = '❌ API Key no configurada';
+                showError('CONFIGURACIÓN PENDIENTE:\n\n1. Edita el código HTML\n2. Busca la línea: const GROQ_API_KEY\n3. Reemplaza "TU API KEY AQUÍ" con tu clave de Groq\n4. Guarda y recarga la página');
                 return false;
             }
             
             if (!GROQ_API_KEY.startsWith('gsk_')) {
                 statusDot.classList.remove('ready');
                 statusText.textContent = '⚠️ API Key inválida';
+                showError('La API Key debe comenzar con "gsk_"\n\nVerifica que hayas copiado la clave completa desde https://console.groq.com/keys');
                 return false;
             }
             
             statusDot.classList.add('ready');
             statusText.textContent = '✓ API Key configurada';
-            if (apiInput && !apiInput.value) apiInput.value = GROQ_API_KEY;
             return true;
         }
 
@@ -374,7 +346,7 @@
             
             const btn = document.getElementById('sendBtn');
             const hasText = textarea.value.trim().length > 0;
-            const hasKey = GROQ_API_KEY && GROQ_API_KEY.startsWith('gsk_');
+            const hasKey = GROQ_API_KEY && GROQ_API_KEY !== 'TU API KEY AQUÍ';
             
             if (hasText && hasKey) {
                 btn.classList.add('active');

@@ -54,15 +54,20 @@
 
         .new-chat-btn:hover { background: rgba(255,255,255,0.1); }
 
-        .model-section {
-            margin-top: auto;
+        .model-section, .api-section {
+            margin-top: 10px;
             padding: 15px;
             background: rgba(255,255,255,0.05);
             border-radius: 6px;
             border: 1px solid var(--border);
         }
 
-        .model-section h3 {
+        .api-section {
+            margin-top: auto;
+            margin-bottom: 10px;
+        }
+
+        .model-section h3, .api-section h3 {
             font-size: 12px;
             color: var(--text-secondary);
             margin-bottom: 8px;
@@ -220,18 +225,29 @@
             <button class="new-chat-btn" onclick="newChat()">
                 <span>+</span> Nuevo chat
             </button>
-            
+
             <div class="model-section">
                 <h3>Modelo Activo</h3>
                 <select class="model-select" id="modelSelect" onchange="updateModel()">
-                    <!-- SOLO MODELOS 100% ACTIVOS SEGÚN DOCUMENTACIÓN GROQ 2026 -->
-                    <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B (Recomendado)</option>
-                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Rápido)</option>
+                    <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B (Versatile)</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B (Instant)</option>
+                    <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 Llama 70B</option>
+                    <option value="deepseek-r1-distill-qwen-32b">DeepSeek R1 Qwen 32B</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                    <option value="gemma2-9b-it">Gemma2 9B</option>
                     <option value="openai/gpt-oss-120b">GPT OSS 120B</option>
                     <option value="openai/gpt-oss-20b">GPT OSS 20B</option>
                     <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout</option>
                     <option value="qwen/qwen3-32b">Qwen3 32B</option>
                 </select>
+            </div>
+
+            <div class="api-section">
+                <h3>Configuración API</h3>
+                <input type="password" id="apiKeyInput" class="model-select" placeholder="gsk_..." style="margin-bottom: 8px;">
+                <button class="new-chat-btn" onclick="saveApiKey()" style="width: 100%; margin-bottom: 0; padding: 8px; justify-content: center; font-size: 12px;">
+                    Guardar API Key
+                </button>
             </div>
         </div>
 
@@ -281,10 +297,25 @@
 
     <script>
         // ============================================
-        // CONFIGURACIÓN - PEGA TU API KEY AQUÍ
+        // CONFIGURACIÓN DE LA API
         // ============================================
-        const GROQ_API_KEY = 'gsk_tu_api_key_aqui'; // ← REEMPLAZA ESTO
+        let GROQ_API_KEY = localStorage.getItem('groq_api_key') || '';
         
+        function saveApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            const key = input.value.trim();
+
+            if (key && key.startsWith('gsk_')) {
+                GROQ_API_KEY = key;
+                localStorage.setItem('groq_api_key', key);
+                checkApiKey();
+                alert('API Key guardada correctamente');
+                autoResize(document.getElementById('messageInput'));
+            } else {
+                alert('Por favor, ingresa una API Key válida (debe comenzar con gsk_)');
+            }
+        }
+
         // ============================================
         // VALIDACIÓN INICIAL
         // ============================================
@@ -292,23 +323,23 @@
         function checkApiKey() {
             const statusDot = document.getElementById('apiStatus');
             const statusText = document.getElementById('statusText');
+            const apiInput = document.getElementById('apiKeyInput');
             
-            if (!GROQ_API_KEY || GROQ_API_KEY === 'gsk_tu_api_key_aqui') {
+            if (!GROQ_API_KEY) {
                 statusDot.classList.remove('ready');
                 statusText.textContent = '❌ API Key no configurada';
-                showError('CONFIGURACIÓN PENDIENTE:\n\n1. Edita el código HTML\n2. Busca la línea: const GROQ_API_KEY\n3. Reemplaza el valor con tu clave de Groq\n4. Guarda y recarga la página');
                 return false;
             }
             
             if (!GROQ_API_KEY.startsWith('gsk_')) {
                 statusDot.classList.remove('ready');
                 statusText.textContent = '⚠️ API Key inválida';
-                showError('La API Key debe comenzar con "gsk_"\n\nVerifica que hayas copiado la clave completa desde https://console.groq.com/keys');
                 return false;
             }
             
             statusDot.classList.add('ready');
             statusText.textContent = '✓ API Key configurada';
+            if (apiInput && !apiInput.value) apiInput.value = GROQ_API_KEY;
             return true;
         }
 
@@ -343,7 +374,7 @@
             
             const btn = document.getElementById('sendBtn');
             const hasText = textarea.value.trim().length > 0;
-            const hasKey = GROQ_API_KEY && GROQ_API_KEY !== 'gsk_tu_api_key_aqui';
+            const hasKey = GROQ_API_KEY && GROQ_API_KEY.startsWith('gsk_');
             
             if (hasText && hasKey) {
                 btn.classList.add('active');
@@ -431,7 +462,7 @@
                         model: model,
                         messages: messages,
                         temperature: 0.7,
-                        max_completion_tokens: 4096
+                        max_tokens: 4096
                     })
                 });
 

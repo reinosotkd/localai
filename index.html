@@ -296,7 +296,7 @@
             const statusDot = document.getElementById('apiStatus');
             const statusText = document.getElementById('statusText');
             
-            if (!GROQ_API_KEY || GROQ_API_KEY === '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') {
+            if (!GROQ_API_KEY || GROQ_API_KEY === 'API') {
                 statusDot.classList.remove('ready');
                 statusText.textContent = '❌ API Key no configurada';
                 showError('CONFIGURACIÓN PENDIENTE:\n\n1. Edita el código HTML\n2. Busca la línea: const GROQ_API_KEY\n3. Reemplaza "TU API KEY AQUÍ" con tu clave de Groq\n4. Guarda y recarga la página');

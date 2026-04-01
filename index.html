@@ -349,13 +349,13 @@
                 <div class="tools-menu" id="toolsMenu">
                     <button class="tool-btn" onclick="openWebCreator()">
                         <div>
-                            <div>🌐 Crear página web</div>
+                            <div>:: Crear página web</div>
                             <small id="webCredits">3 créditos hoy</small>
                         </div>
                     </button>
                     <button class="tool-btn" onclick="openAIDetector()">
                         <div>
-                            <div>🔍 Detector de IA</div>
+                            <div>?> Detector de IA</div>
                             <small>Subraya texto artificial</small>
                         </div>
                     </button>
@@ -363,9 +363,10 @@
                 <div class="input-wrapper">
                     <button class="plus-btn" onclick="toggleToolsMenu()">+</button>
                     <select class="model-select-mini" id="modelSelect" onchange="updateModel()">
-                        <option value="llama-3.3-70b-versatile" selected>Llama 3.3 70B</option>
+                        <option value="openai/gpt-oss-120b" selected>GPT OSS 120B</option>
+                        <option value="openai/gpt-oss-20b">GPT OSS 20B</option>
+                        <option value="openai/gpt-oss-safeguard-20b">GPT OSS Safeguard</option>
                         <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
-                        <option value="deepseek-r1-distill-llama-70b">DeepSeek R1</option>
                         <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
                         <option value="gemma2-9b-it">Gemma2 9B</option>
                     </select>
@@ -398,6 +399,7 @@
         let messages = [];
         let isTyping = false;
         let currentUser = null;
+        let isHumanizing = false;
 
         // ============================================
         // GOOGLE LOGIN
@@ -469,7 +471,7 @@
                 const item = document.createElement('div');
                 item.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
                 item.onclick = () => loadChat(chat.id);
-                item.innerHTML = `💬 ${chat.title}`;
+                item.innerHTML = `[ ] ${chat.title}`;
                 list.appendChild(item);
             });
         }
@@ -478,6 +480,7 @@
             saveChat();
             currentChatId = Date.now().toString();
             messages = [];
+            isHumanizing = false;
             document.getElementById('chatContainer').innerHTML = `
                 <div class="welcome" id="welcome">
                     <h1>¿Cómo puedo ayudarte hoy?</h1>
@@ -548,17 +551,64 @@
         function openAIDetector() {
             const text = prompt("Pega el texto que quieres analizar:");
             if (text) {
-                // Simulación de detección: resaltamos palabras comunes de IA
-                const aiWords = ["en el vasto", "es fundamental", "en conclusión", "por otro lado", "cabe destacar", "en resumen"];
+                const aiWords = ["en el vasto", "es fundamental", "en conclusión", "por otro lado", "cabe destacar", "en resumen", "además", "no obstante", "evidentemente", "como resultado"];
+                let matchCount = 0;
                 let detectedText = text;
+
                 aiWords.forEach(word => {
                     const regex = new RegExp(`(${word})`, 'gi');
-                    detectedText = detectedText.replace(regex, '<span class="ai-highlight">$1</span>');
+                    const matches = text.match(regex);
+                    if (matches) {
+                        matchCount += matches.length;
+                        detectedText = detectedText.replace(regex, '<span class="ai-highlight">$1</span>');
+                    }
                 });
 
-                renderMessage('assistant', `<b>Resultado del Análisis:</b><br><br>${detectedText}<br><br><small>Las zonas en rojo indican patrones comunes de IA.</small>`);
+                const wordCount = text.split(/\s+/).length || 1;
+                const percentage = Math.min(100, Math.round((matchCount * 10 / wordCount) * 100));
+
+                const resultMsg = `<b>Resultado del Análisis: ${percentage}% IA</b><br><br>${detectedText}<br><br><small>(Haz clic aquí para humanizar este texto)</small>`;
+
+                // Renderizar un mensaje especial que es clicable
+                const container = document.getElementById('chatContainer');
+                const welcome = document.getElementById('welcome');
+                if (welcome) welcome.style.display = 'none';
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message assistant`;
+                messageDiv.onclick = () => startHumanizing(text);
+                messageDiv.style.cursor = 'pointer';
+
+                let formattedContent = resultMsg
+                    .replace(/&lt;span class="ai-highlight"&gt;/g, '<span class="ai-highlight">')
+                    .replace(/&lt;\/span&gt;/g, '</span>');
+
+                messageDiv.innerHTML = `
+                    <div class="bubble">
+                        <div class="avatar">${ROBOT_ICON}</div>
+                        <div class="message-content">${formattedContent}</div>
+                    </div>
+                `;
+                container.appendChild(messageDiv);
+                container.scrollTop = container.scrollHeight;
             }
             toggleToolsMenu();
+        }
+
+        function startHumanizing(initialText = "") {
+            isHumanizing = true;
+            messages = [];
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = `
+                <div class="welcome" id="welcome">
+                    <h1 style="font-size: 3rem; margin-top: 10vh;">¿QUE QUIERES HUMANIZAR?</h1>
+                    <p>Pega el texto abajo para que Lumina lo vuelva más humano.</p>
+                </div>
+            `;
+            if (initialText) {
+                document.getElementById('messageInput').value = initialText;
+                autoResize(document.getElementById('messageInput'));
+            }
         }
 
         function autoResize(textarea) {
@@ -657,9 +707,15 @@
             addMessage('user', content);
             
             // Crear copia de mensajes para la API con el system prompt
+            let systemPrompt = "Responde de forma resumida. Usa negritas para subtítulos. Agrega UN emoji UNICAMENTE al inicio de subtítulos en negrita (ej: 💡 **Título**). No uses emojis en ninguna otra parte del texto.";
+
+            if (isHumanizing) {
+                systemPrompt = "Actúa como un humanizador de texto profesional. Analiza el texto proporcionado y reescríbelo para que suene completamente natural, humano y evite patrones típicos de IA. Mantén el significado original.";
+            }
+
             const apiMessages = [
-                { role: "system", content: "Responde de forma resumida, usando negritas en lugar de asteriscos y agrega unos pocos emojis relevantes." },
-                ...messages.slice(-10) // Enviar solo los últimos 10 para ahorrar tokens
+                { role: "system", content: systemPrompt },
+                ...messages.slice(-10)
             ];
 
             // Limpiar input si no es un comando de herramienta

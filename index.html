@@ -295,7 +295,7 @@
         }
 
         .message.user .bubble {
-            background: var(--accent);
+            background: #2c2c2e;
             color: white;
             border-bottom-right-radius: 6px;
             border: 1px solid rgba(255,255,255,0.2);
@@ -377,7 +377,7 @@
         .message-input {
             flex: 1; background: transparent; border: none;
             color: var(--text-primary); padding: 12px 15px;
-            font-size: 17px; resize: none; outline: none;
+            font-size: 16px; resize: none; outline: none;
             min-height: 26px; max-height: 250px; font-family: inherit;
             line-height: 1.4;
         }
@@ -805,6 +805,29 @@
             }
             .sidebar.active { transform: translateX(0); }
             .sidebar-close-btn { display: block; }
+
+            .welcome h1 { font-size: 1.8rem; }
+            .bubble { font-size: 14px; padding: 10px 14px; max-width: 90%; }
+            .message-input { font-size: 14px; padding: 8px 10px; }
+            .plus-btn, .send-btn { width: 34px; height: 34px; font-size: 16px; }
+            .gpt-label { font-size: 10px; padding: 3px 6px; margin-right: 4px; }
+            .input-wrapper { padding: 6px 6px 6px 12px; border-radius: 24px; }
+            .input-container { padding: 10px 10px 30px; }
+        }
+
+        /* Blur effect for intro menus */
+        .chat-blur {
+            filter: blur(8px);
+            pointer-events: none;
+            transition: filter 0.3s ease;
+        }
+
+        .intro-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5000;
+            background: rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -1282,21 +1305,32 @@
             messages = [];
             currentChatId = Date.now().toString();
             const container = document.getElementById('chatContainer');
-            container.innerHTML = `
+            container.classList.add('chat-blur');
+
+            const overlay = document.createElement('div');
+            overlay.className = 'intro-overlay';
+            overlay.id = 'webIntroOverlay';
+            overlay.innerHTML = `
                 <div class="intro-menu" id="webIntro">
-                    <button class="sidebar-close-btn" style="display: block;" onclick="newChat()">
+                    <button class="sidebar-close-btn" style="display: block;" onclick="closeIntroOverlay('webIntroOverlay')">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                     <div class="intro-img-placeholder">
-                        <!-- Espacio para imagen manual -->
                         <span>[Inserta tu imagen aquí]</span>
                     </div>
                     <h2 class="intro-title">Web Creator</h2>
                     <p class="intro-desc">Convierte tus ideas en sitios web reales. Lumina diseñará y programará una página completa para ti en segundos con un estilo moderno.</p>
-                    <button class="modal-btn" onclick="startFeature('web')">Comenzar a Crear</button>
+                    <button class="modal-btn" onclick="startFeature('web'); closeIntroOverlay('webIntroOverlay');">Comenzar a Crear</button>
                 </div>
             `;
+            document.querySelector('.main').appendChild(overlay);
             toggleToolsMenu();
+        }
+
+        function closeIntroOverlay(id) {
+            const overlay = document.getElementById(id);
+            if (overlay) overlay.remove();
+            document.getElementById('chatContainer').classList.remove('chat-blur');
         }
 
         function startFeature(type) {
@@ -1328,9 +1362,14 @@
             messages = [];
             currentChatId = Date.now().toString();
             const container = document.getElementById('chatContainer');
-            container.innerHTML = `
+            container.classList.add('chat-blur');
+
+            const overlay = document.createElement('div');
+            overlay.className = 'intro-overlay';
+            overlay.id = 'detectorIntroOverlay';
+            overlay.innerHTML = `
                 <div class="intro-menu" id="detectorIntro">
-                    <button class="sidebar-close-btn" style="display: block;" onclick="newChat()">
+                    <button class="sidebar-close-btn" style="display: block;" onclick="closeIntroOverlay('detectorIntroOverlay')">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                     <div class="intro-img-placeholder">
@@ -1338,9 +1377,10 @@
                     </div>
                     <h2 class="intro-title">Detector de IA</h2>
                     <p class="intro-desc">Pega un texto y Lumina analizará patrones artificiales para determinar si fue escrito por un humano o una IA.</p>
-                    <button class="modal-btn" onclick="startDetectorFlow()">Comenzar Análisis</button>
+                    <button class="modal-btn" onclick="startDetectorFlow(); closeIntroOverlay('detectorIntroOverlay');">Comenzar Análisis</button>
                 </div>
             `;
+            document.querySelector('.main').appendChild(overlay);
             toggleToolsMenu();
         }
 
@@ -1356,24 +1396,29 @@
             messages = [];
             currentChatId = Date.now().toString();
             const container = document.getElementById('chatContainer');
+            container.classList.add('chat-blur');
 
-            container.innerHTML = `
+            const overlay = document.createElement('div');
+            overlay.className = 'intro-overlay';
+            overlay.id = 'humanIntroOverlay';
+            overlay.innerHTML = `
                 <div class="intro-menu" id="humanIntro">
-                    <button class="sidebar-close-btn" style="display: block;" onclick="newChat()">
+                    <button class="sidebar-close-btn" style="display: block;" onclick="closeIntroOverlay('humanIntroOverlay')">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                     <div class="intro-img-placeholder">
-                        <!-- Espacio para imagen manual -->
                         <span>[Inserta tu imagen aquí]</span>
                     </div>
                     <h2 class="intro-title">Humanizador</h2>
                     <p class="intro-desc">Lumina analiza y reescribe textos generados por IA para darles un toque humano, natural y evitar detectores de IA.</p>
-                    <button class="modal-btn" onclick="startFeature('human')">Comenzar a Humanizar</button>
+                    <button class="modal-btn" onclick="startFeature('human'); closeIntroOverlay('humanIntroOverlay');">Comenzar a Humanizar</button>
                 </div>
             `;
+            document.querySelector('.main').appendChild(overlay);
 
             if (initialText) {
                 startFeature('human');
+                closeIntroOverlay('humanIntroOverlay');
                 document.getElementById('messageInput').value = initialText;
                 autoResize(document.getElementById('messageInput'));
             }
@@ -1440,6 +1485,7 @@
                 .replace(/&lt;span class="ai-highlight"&gt;/g, '<span class="ai-highlight">')
                 .replace(/&lt;\/span&gt;/g, '</span>')
                 .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+                .replace(/\*([^*]+)\*/g, '<b>$1</b>') // Handle single asterisks too
                 .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
                 .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/\n/g, '<br>');
@@ -1469,7 +1515,17 @@
                 container.appendChild(messageDiv);
             }
             
-            container.scrollTop = container.scrollHeight;
+            autoScroll();
+        }
+
+        function autoScroll() {
+            const container = document.getElementById('chatContainer');
+            // Si el usuario está a menos de 100px del fondo, scrollear
+            const threshold = 100;
+            const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+            if (isAtBottom) {
+                container.scrollTop = container.scrollHeight;
+            }
         }
 
         function typeWriter(element, html, speed = 5) {
@@ -1491,7 +1547,7 @@
                         i++;
                     }
                     element.innerHTML = currentHTML;
-                    document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+                    autoScroll();
                 } else {
                     clearInterval(timer);
                     element.parentElement.classList.remove('fade-bottom');
@@ -1547,7 +1603,13 @@
             const userNickname = userProfile?.nickname || "Usuario";
             const customInstructions = userProfile?.instructions || "";
 
-            let systemPrompt = `Tu nombre es Lumina. Eres una asistente de IA avanzada, amable y eficiente. Te estás dirigiendo a ${userNickname}. ${customInstructions ? `Instrucciones del usuario: ${customInstructions}` : ""} Responde de forma resumida. Usa negritas para subtítulos. Agrega UN emoji UNICAMENTE al inicio de subtítulos en negrita (ej: 💡 **Título**). No uses emojis en ninguna otra parte del texto.`;
+            let systemPrompt = `Tu nombre es Lumina. Eres una asistente de IA avanzada, amable y eficiente de Lumina AI. Te estás dirigiendo a ${userNickname}.
+            REGLAS DE FORMATO:
+            - NUNCA uses asteriscos (*) para enfatizar o para listas. Usa negritas HTML <b> o markdown ** en su lugar.
+            - Usa subtítulos en negrita (ej: <b>Título</b>) SOLO si la respuesta es larga, de aprendizaje o compleja. Para respuestas cortas, sé directa.
+            - Emojis: Máximo 2 emojis en todo el mensaje. Colócalos preferiblemente al inicio de los subtítulos.
+            - Emojis específicos: Usa 🧠 o ✏️ para temas de aprendizaje, escuela o académicos.
+            - Instrucciones del usuario: Solo aplica estas instrucciones si el usuario lo pide explícitamente o si el contexto lo requiere: "${customInstructions}". De lo contrario, ignóralas y sé tú misma.`;
 
             if (isHumanizing) {
                 systemPrompt = `Tu nombre es Lumina. Eres una asistente creada por Lumina AI. Actúa como un humanizador de texto profesional para ${userNickname}. Analiza el texto y reescríbelo para que sea 100% humano, natural y emocional. Elimina cualquier rastro de IA. Mantén el tono solicitado por el usuario si lo hay.`;

@@ -206,17 +206,25 @@
         }
 
         .gpt-label {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
             font-weight: 600;
-            background: var(--bg-glass);
-            padding: 4px 10px;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             outline: none;
             cursor: pointer;
             appearance: none;
             -webkit-appearance: none;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+
+        .gpt-label:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            box-shadow: 0 0 10px rgba(0, 113, 227, 0.3);
         }
 
         .gpt-label option {
@@ -777,12 +785,26 @@
         .intro-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
         .intro-desc { color: var(--text-secondary); margin-bottom: 30px; line-height: 1.6; }
 
+        .sidebar-close-btn {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed; top: 0; left: 0; height: 100%; width: 280px;
                 z-index: 100000;
+                transform: translateX(-100%);
+                margin-right: 0;
             }
-            .sidebar.hidden { transform: translateX(-100%); margin-right: 0; }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-close-btn { display: block; }
         }
     </style>
 </head>
@@ -849,7 +871,10 @@
     </div>
 
     <div class="container">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close-btn" onclick="toggleSidebar()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
             <div class="sidebar-header">
                 <button class="new-chat-btn" onclick="newChat()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -884,14 +909,6 @@
                     </button>
                     <span>Lumina AI</span>
                 </div>
-                <select id="modelSelect" class="gpt-label" onchange="updateModel()">
-                    <option value="openai/gpt-oss-120b" selected>GPT OSS 120B (Recomendado)</option>
-                    <option value="qwen/qwen3-32b">Qwen 3 32B</option>
-                    <option value="moonshotai/kimi-k2-instruct">Kimi K2</option>
-                    <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
-                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
-                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-                </select>
             </div>
 
             <div class="error-box" id="errorBox"></div>
@@ -921,7 +938,7 @@
                 <div class="input-wrapper">
                     <div class="tools-menu" id="toolsMenu">
                         <button class="tool-btn" onclick="openWebCreator()">
-                            <div>:: Crear página web</div>
+                            <div>:: Crear página web <span style="background: var(--accent); font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-left: 5px;">BETA</span></div>
                             <small id="webCredits">3 créditos hoy</small>
                         </button>
                         <button class="tool-btn" onclick="openAIDetector()">
@@ -941,6 +958,18 @@
                         rows="1"
                         oninput="autoResize(this)"
                         onkeydown="handleKeyDown(event)"></textarea>
+                    <select id="modelSelect" class="gpt-label" onchange="updateModel()">
+                        <option value="openai/gpt-oss-120b" selected>GPT OSS 120B</option>
+                        <option value="openai/gpt-oss-20b">GPT OSS 20B</option>
+                        <option value="qwen/qwen3-32b">Qwen 3</option>
+                        <option value="moonshotai/kimi-k2-instruct">Kimi K2</option>
+                        <option value="llama-3.3-70b-versatile">Llama 3.3</option>
+                        <option value="llama-3.1-8b-instant">Llama 3.1</option>
+                        <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4</option>
+                        <option value="allam-2-7b">Allam 2</option>
+                        <option value="groq/compound">Groq C</option>
+                        <option value="groq/compound-mini">Groq CM</option>
+                    </select>
                     <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>↑</button>
                 </div>
             </div>
@@ -996,10 +1025,8 @@
         // ============================================
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
-            sidebar.classList.toggle('hidden');
-
-            // On mobile, also toggle an overlay to close it when clicking outside
             if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
                 let overlay = document.getElementById('sidebarOverlay');
                 if (!overlay) {
                     overlay = document.createElement('div');
@@ -1008,7 +1035,9 @@
                     overlay.onclick = toggleSidebar;
                     document.body.appendChild(overlay);
                 }
-                overlay.style.display = sidebar.classList.contains('hidden') ? 'none' : 'block';
+                overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+            } else {
+                sidebar.classList.toggle('hidden');
             }
         }
 
@@ -1094,18 +1123,32 @@
             }
         }
 
+        const suggestionPool = [
+            "Explica la física cuántica de forma simple", "Escribe un poema sobre el mar", "Dime una receta saludable",
+            "¿Cómo mejorar mi productividad?", "Escribe un cuento corto de terror", "Explica el Big Bang para niños",
+            "Dame consejos para aprender inglés", "¿Qué es el aprendizaje automático?", "Escribe una carta formal de renuncia",
+            "Plan de entrenamiento de 15 minutos", "Resumen de la historia de Roma", "¿Cómo hacer un huerto en casa?",
+            "Mejores destinos para viajar solo", "Explica la teoría de cuerdas", "Escribe un guion sobre Marte",
+            "Ideas para un regalo creativo", "¿Cómo funciona el sistema solar?", "Escribe una canción de rock"
+        ];
+
+        function getRandomSuggestions() {
+            const shuffled = suggestionPool.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, 3);
+        }
+
         function newChat() {
             saveChat();
             currentChatId = Date.now().toString();
             messages = [];
             isHumanizing = false;
+            isWebCreating = false;
+            const suggestions = getRandomSuggestions();
             document.getElementById('chatContainer').innerHTML = `
                 <div class="welcome" id="welcome">
                     <h1>¿Cómo puedo ayudarte hoy?</h1>
                     <div class="suggestions">
-                        <div class="suggestion-bubble" onclick="useSuggestion('Explica la física cuántica de forma simple')">Explica la física cuántica...</div>
-                        <div class="suggestion-bubble" onclick="useSuggestion('Escribe un poema sobre el mar')">Escribe un poema...</div>
-                        <div class="suggestion-bubble" onclick="useSuggestion('Dime una receta saludable')">Dime una receta...</div>
+                        ${suggestions.map(s => `<div class="suggestion-bubble" onclick="useSuggestion('${s}')">${s.substring(0, 25)}...</div>`).join('')}
                     </div>
                 </div>
             `;
@@ -1124,6 +1167,12 @@
             renderChatList();
             checkCreditReset();
             checkOnboarding();
+            // Cargar sugerencias iniciales
+            const suggestions = getRandomSuggestions();
+            const suggestionsDiv = document.querySelector('.suggestions');
+            if (suggestionsDiv) {
+                suggestionsDiv.innerHTML = suggestions.map(s => `<div class="suggestion-bubble" onclick="useSuggestion('${s}')">${s.substring(0, 25)}...</div>`).join('');
+            }
         };
 
         function checkOnboarding() {
@@ -1235,6 +1284,9 @@
             const container = document.getElementById('chatContainer');
             container.innerHTML = `
                 <div class="intro-menu" id="webIntro">
+                    <button class="sidebar-close-btn" style="display: block;" onclick="newChat()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
                     <div class="intro-img-placeholder">
                         <!-- Espacio para imagen manual -->
                         <span>[Inserta tu imagen aquí]</span>
@@ -1271,38 +1323,31 @@
         }
 
         function openAIDetector() {
-            const text = prompt("Pega el texto que quieres analizar:");
-            if (text) {
-                const aiWords = ["en el vasto", "es fundamental", "en conclusión", "por otro lado", "cabe destacar", "en resumen", "además", "no obstante", "evidentemente", "como resultado"];
-                let matchCount = 0;
-
-                aiWords.forEach(word => {
-                    const regex = new RegExp(`(${word})`, 'gi');
-                    const matches = text.match(regex);
-                    if (matches) matchCount += matches.length;
-                });
-
-                const wordCount = text.split(/\s+/).length || 1;
-                const percentage = Math.min(100, Math.round((matchCount * 10 / wordCount) * 100));
-
-                // Show result in chat first
-                const container = document.getElementById('chatContainer');
-                if (document.getElementById('welcome')) document.getElementById('welcome').style.display = 'none';
-
-                const resDiv = document.createElement('div');
-                resDiv.className = 'message assistant';
-                resDiv.innerHTML = `
-                    <div class="bubble">
-                        <div class="detector-box" onclick="startHumanizing(\`${text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 0)">Detección de IA: ${percentage}% (Haz clic para humanizar)</div>
+            isHumanizing = false;
+            isWebCreating = false;
+            messages = [];
+            currentChatId = Date.now().toString();
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = `
+                <div class="intro-menu" id="detectorIntro">
+                    <button class="sidebar-close-btn" style="display: block;" onclick="newChat()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                    <div class="intro-img-placeholder">
+                        <span>[Inserta tu imagen aquí]</span>
                     </div>
-                `;
-                container.appendChild(resDiv);
-                container.scrollTop = container.scrollHeight;
+                    <h2 class="intro-title">Detector de IA</h2>
+                    <p class="intro-desc">Pega un texto y Lumina analizará patrones artificiales para determinar si fue escrito por un humano o una IA.</p>
+                    <button class="modal-btn" onclick="startDetectorFlow()">Comenzar Análisis</button>
+                </div>
+            `;
+            toggleToolsMenu();
+        }
 
-                toggleToolsMenu();
-            } else {
-                toggleToolsMenu();
-            }
+        function startDetectorFlow() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = '';
+            addMessage('assistant', "¡Hola! Soy Lumina. ¿Qué texto quieres que analice hoy?");
         }
 
         function startHumanizing(initialText = "", percentage = 0) {
@@ -1314,6 +1359,9 @@
 
             container.innerHTML = `
                 <div class="intro-menu" id="humanIntro">
+                    <button class="sidebar-close-btn" style="display: block;" onclick="newChat()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
                     <div class="intro-img-placeholder">
                         <!-- Espacio para imagen manual -->
                         <span>[Inserta tu imagen aquí]</span>
@@ -1457,17 +1505,44 @@
             const input = document.getElementById('messageInput');
             const model = document.getElementById('modelSelect').value;
             const content = overrideContent || input.value.trim();
+
+            // Detector logic integration
+            if (messages.length === 1 && messages[0].content.includes("¿Qué texto quieres que analice hoy?")) {
+                const aiWords = ["en el vasto", "es fundamental", "en conclusión", "por otro lado", "cabe destacar", "en resumen", "además", "no obstante", "evidentemente", "como resultado"];
+                let matchCount = 0;
+                aiWords.forEach(word => {
+                    const regex = new RegExp(`(${word})`, 'gi');
+                    const matches = content.match(regex);
+                    if (matches) matchCount += matches.length;
+                });
+                const wordCount = content.split(/\s+/).length || 1;
+                const percentage = Math.min(100, Math.round((matchCount * 10 / wordCount) * 100));
+
+                addMessage('user', content);
+                input.value = '';
+                const container = document.getElementById('chatContainer');
+                const resDiv = document.createElement('div');
+                resDiv.className = 'message assistant';
+                resDiv.innerHTML = `
+                    <div class="bubble">
+                        <div class="detector-box" onclick="startHumanizing(\`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 0)">Detección de IA: ${percentage}% (Haz clic para humanizar)</div>
+                    </div>
+                `;
+                container.appendChild(resDiv);
+                container.scrollTop = container.scrollHeight;
+                return;
+            }
             
             if (!content || isTyping) return;
 
-            if (isWebCreating && messages.length === 0) {
+            addMessage('user', content);
+
+            if (isWebCreating && messages.length === 1) {
                 webCredits--;
                 localStorage.setItem('lumina_web_credits', webCredits);
                 checkCreditReset();
             }
 
-            addMessage('user', content);
-            
             // Crear copia de mensajes para la API con el system prompt
             const userNickname = userProfile?.nickname || "Usuario";
             const customInstructions = userProfile?.instructions || "";
@@ -1514,7 +1589,6 @@
                     return;
                 }
 
-                const model = document.getElementById('modelSelect').value;
                 const response = await fetch(`${BASE_URL}/chat/completions`, {
                     method: 'POST',
                     headers: {
@@ -1551,7 +1625,10 @@
                 }
 
                 const data = await response.json();
-                const assistantMessage = data.choices[0].message.content;
+                if (!data.choices || data.choices.length === 0) {
+                    throw new Error("No response from AI model.");
+                }
+                const assistantMessage = data.choices[0].message.content || data.choices[0].message.reasoning || "";
                 
                 document.getElementById('typingIndicator').classList.remove('active');
 
@@ -1606,8 +1683,16 @@
                     })
                 });
 
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error?.message || `Error ${response.status}: ${response.statusText}`);
+                }
+
                 const data = await response.json();
-                const content = data.choices[0].message.content;
+                if (!data.choices || data.choices.length === 0) {
+                    throw new Error("No response from AI model.");
+                }
+                const content = data.choices[0].message.content || data.choices[0].message.reasoning || "";
                 loadingDiv.remove();
 
                 if (isWebCreating) {

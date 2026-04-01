@@ -130,6 +130,11 @@
         .chat-item:hover .rename-btn { opacity: 1; }
         .rename-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.1); }
 
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
         .new-chat-btn {
             background: var(--bg-glass);
             border: 1px solid var(--glass-border);
@@ -208,15 +213,23 @@
             padding: 4px 10px;
             border-radius: 20px;
             border: 1px solid var(--border);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .gpt-label option {
+            background: #1a1a1c;
+            color: var(--text-primary);
         }
 
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 20px 0 150px 0;
+            padding: 20px 0 180px 0;
             display: flex;
             flex-direction: column;
-            pointer-events: auto;
             position: relative;
             z-index: 1;
         }
@@ -234,10 +247,13 @@
 
         .welcome h1 {
             color: var(--text-primary);
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            font-weight: 700;
-            letter-spacing: -0.03em;
+            font-size: 3rem;
+            margin-bottom: 24px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .message {
@@ -305,60 +321,72 @@
         }
 
         .input-container {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 20px;
-            padding-bottom: 40px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 20px 50px;
             pointer-events: none;
             z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .input-wrapper {
-            max-width: 760px; margin: 0 auto; position: relative;
-            background: rgba(30, 30, 35, 0.6);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 28px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            display: flex; align-items: flex-end; padding: 12px 20px;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            background: rgba(40, 40, 45, 0.4);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 32px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+            display: flex; align-items: center; padding: 10px 10px 10px 20px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             pointer-events: auto;
         }
 
         .input-wrapper:focus-within {
-            background: rgba(40, 40, 45, 0.8);
-            border-color: rgba(0, 113, 227, 0.5);
-            transform: scale(1.01);
+            background: rgba(50, 50, 55, 0.6);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.8);
         }
 
         .plus-btn {
-            background: transparent; border: none; color: var(--text-secondary);
-            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; transition: all 0.2s;
+            font-size: 22px; transition: all 0.3s;
+            flex-shrink: 0;
         }
         .plus-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
 
         .message-input {
             flex: 1; background: transparent; border: none;
-            color: var(--text-primary); padding: 10px 12px;
-            font-size: 16px; resize: none; outline: none;
-            min-height: 24px; max-height: 200px; font-family: inherit;
-            line-height: 1.5;
+            color: var(--text-primary); padding: 12px 15px;
+            font-size: 17px; resize: none; outline: none;
+            min-height: 26px; max-height: 250px; font-family: inherit;
+            line-height: 1.4;
         }
 
         .message-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.25);
         }
 
         .send-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: none; width: 38px; height: 38px;
-            border-radius: 12px; cursor: pointer;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: none; width: 44px; height: 44px;
+            border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-left: 10px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-left: 8px;
+            flex-shrink: 0;
         }
 
         .send-btn.active { background: var(--accent); transform: scale(1.05); }
@@ -376,28 +404,34 @@
             flex-wrap: wrap;
             gap: 12px;
             justify-content: center;
-            margin: 30px auto 0;
-            max-width: 700px;
+            align-items: center;
+            margin: 40px auto 0;
+            max-width: 800px;
             width: 100%;
+            padding: 0 20px;
+            pointer-events: auto;
         }
 
         .suggestion-bubble {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(200, 200, 200, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 20px;
-            border-radius: 20px;
+            padding: 14px 24px;
+            border-radius: 24px;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.3s;
-            color: #d1d1d6;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #e5e5ea;
             text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .suggestion-bubble:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
             color: var(--text-primary);
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
         /* Loading Animation */
@@ -499,39 +533,49 @@
             display: inline-block;
             font-weight: 600;
             color: var(--error);
+            pointer-events: auto;
         }
 
         /* Tools Menu */
         .tools-menu {
             position: absolute;
-            bottom: 85px;
-            left: 20px;
-            background: rgba(20, 20, 25, 0.8);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 12px;
-            width: 260px;
+            bottom: 110px;
+            left: 30px;
+            background: rgba(30, 30, 35, 0.98);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 18px;
+            width: 280px;
             display: none;
             flex-direction: column;
-            gap: 8px;
-            box-shadow: var(--shadow);
-            z-index: 1000;
+            gap: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            z-index: 110000;
+            pointer-events: auto;
+            transform-origin: bottom left;
+            animation: menuPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes menuPop {
+            from { transform: scale(0.8) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
 
         .tool-btn {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             color: var(--text-primary);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 14px;
-            transition: background 0.2s;
+            font-weight: 500;
+            transition: all 0.2s;
             text-align: left;
         }
 
@@ -571,17 +615,59 @@
         }
         .api-status.ready { background: var(--accent); }
 
+        /* Full Screen Preview Overlay */
+        .preview-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 200000;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+        .preview-header {
+            padding: 15px 25px;
+            background: #111;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .preview-close-btn {
+            background: #ff453a;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .preview-iframe {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
         @media (max-width: 768px) { .sidebar { display: none; } }
     </style>
 </head>
 <body>
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
+    <div id="previewOverlay" class="preview-overlay">
+        <div class="preview-header">
+            <span style="font-weight: bold;">Vista Previa Web</span>
+            <button class="preview-close-btn" onclick="closePreview()">Cerrar</button>
+        </div>
+        <iframe id="previewIframe" class="preview-iframe"></iframe>
+    </div>
+
     <div class="container">
         <div class="sidebar">
             <div class="sidebar-header">
                 <button class="new-chat-btn" onclick="newChat()">
-                    <span>+</span> Nuevo chat
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    Nuevo chat
                 </button>
             </div>
 
@@ -589,12 +675,14 @@
                 <!-- Chats se cargan aquí -->
             </div>
 
-            <div class="google-login-section">
-                <div id="g_id_onload"
-                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                     data-callback="handleCredentialResponse">
+            <div class="sidebar-footer">
+                <div class="google-login-section">
+                    <div id="g_id_onload"
+                         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                         data-callback="handleCredentialResponse">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-theme="dark" data-shape="rectangular" data-width="240"></div>
                 </div>
-                <div class="g_id_signin" data-type="standard"></div>
             </div>
         </div>
 
@@ -606,7 +694,12 @@
                     </button>
                     <span>Lumina AI</span>
                 </div>
-                <div class="gpt-label">GPT-4.5</div>
+                <select id="modelSelect" class="gpt-label" onchange="updateModel()">
+                    <option value="openai/gpt-oss-120b" selected>GPT OSS 120B (Recomendado)</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                </select>
             </div>
 
             <div class="error-box" id="errorBox"></div>
@@ -633,21 +726,17 @@
             </div>
 
             <div class="input-container">
-                <div class="tools-menu" id="toolsMenu">
-                    <button class="tool-btn" onclick="openWebCreator()">
-                        <div>
+                <div class="input-wrapper">
+                    <div class="tools-menu" id="toolsMenu">
+                        <button class="tool-btn" onclick="openWebCreator()">
                             <div>:: Crear página web</div>
                             <small id="webCredits">3 créditos hoy</small>
-                        </div>
-                    </button>
-                    <button class="tool-btn" onclick="openAIDetector()">
-                        <div>
+                        </button>
+                        <button class="tool-btn" onclick="openAIDetector()">
                             <div>?> Detector de IA</div>
                             <small>Subraya texto artificial</small>
-                        </div>
-                    </button>
-                </div>
-                <div class="input-wrapper">
+                        </button>
+                    </div>
                     <button class="plus-btn" onclick="toggleToolsMenu()">+</button>
                     <textarea 
                         class="message-input" 
@@ -890,9 +979,24 @@
                 const wordCount = text.split(/\s+/).length || 1;
                 const percentage = Math.min(100, Math.round((matchCount * 10 / wordCount) * 100));
 
-                startHumanizing(text, percentage);
+                // Show result in chat first
+                const container = document.getElementById('chatContainer');
+                if (document.getElementById('welcome')) document.getElementById('welcome').style.display = 'none';
+
+                const resDiv = document.createElement('div');
+                resDiv.className = 'message assistant';
+                resDiv.innerHTML = `
+                    <div class="bubble">
+                        <div class="detector-box" onclick="startHumanizing(\`${text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, 0)">Detección de IA: ${percentage}% (Haz clic para humanizar)</div>
+                    </div>
+                `;
+                container.appendChild(resDiv);
+                container.scrollTop = container.scrollHeight;
+
+                toggleToolsMenu();
+            } else {
+                toggleToolsMenu();
             }
-            toggleToolsMenu();
         }
 
         function startHumanizing(initialText = "", percentage = 0) {
@@ -902,9 +1006,9 @@
             currentChatId = Date.now().toString();
             const container = document.getElementById('chatContainer');
             container.innerHTML = `
-                <div class="welcome" id="welcome">
+                <div class="welcome" id="welcome" style="pointer-events: auto;">
                     <h1 style="font-size: 3rem; margin-top: 10vh;">¿QUE QUIERES HUMANIZAR?</h1>
-                    ${percentage > 0 ? `<div class="detector-box">Detección de IA: ${percentage}%</div>` : ''}
+                    ${percentage > 0 ? `<div class="detector-box" onclick="startHumanizing(\`${initialText}\`, 0)">Detección de IA: ${percentage}%</div>` : ''}
                     <p>Pega el texto abajo para que Lumina lo vuelva más humano.</p>
                 </div>
             `;
@@ -1008,17 +1112,23 @@
 
         function typeWriter(element, html, speed = 5) {
             let i = 0;
+            let currentHTML = "";
             const timer = setInterval(() => {
                 if (i < html.length) {
-                    // Si es una etiqueta, la añadimos completa para no romper el DOM
                     if (html[i] === '<') {
                         const end = html.indexOf('>', i);
-                        element.innerHTML = html.substring(0, end + 1);
-                        i = end + 1;
+                        if (end !== -1) {
+                            currentHTML += html.substring(i, end + 1);
+                            i = end + 1;
+                        } else {
+                            currentHTML += html[i];
+                            i++;
+                        }
                     } else {
-                        element.innerHTML = html.substring(0, i + 1);
+                        currentHTML += html[i];
                         i++;
                     }
+                    element.innerHTML = currentHTML;
                     document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
                 } else {
                     clearInterval(timer);
@@ -1031,7 +1141,7 @@
             if (!checkApiKey()) return;
             
             const input = document.getElementById('messageInput');
-            const model = "openai/gpt-oss-120b";
+            const model = document.getElementById('modelSelect').value;
             const content = overrideContent || input.value.trim();
             
             if (!content || isTyping) return;
@@ -1049,6 +1159,8 @@
 
             if (isHumanizing) {
                 systemPrompt = "Actúa como un humanizador de texto profesional. Analiza el texto proporcionado y reescríbelo para que suene completamente natural, humano y evite patrones típicos de IA. Mantén el significado original.";
+            } else if (isWebCreating) {
+                systemPrompt = "Eres un desarrollador web experto. Crea una página web completa, moderna y profesional usando UN ÚNICO BLOQUE de código HTML que incluya CSS interno (<style>) y JS si es necesario. No des explicaciones, solo el código en formato Markdown (```html ... ```). Asegúrate de que el diseño sea atractivo (estilo Apple/Glassmorphism), responsivo y use estándares modernos.";
             }
 
             const apiMessages = [
@@ -1076,6 +1188,7 @@
                     return;
                 }
 
+                const model = document.getElementById('modelSelect').value;
                 const response = await fetch(`${BASE_URL}/chat/completions`, {
                     method: 'POST',
                     headers: {
@@ -1101,7 +1214,7 @@
                     if (response.status === 401) {
                         errorMsg = 'Error 401: API Key inválida o expirada.\n\nVerifica tu clave en https://console.groq.com/keys';
                     } else if (response.status === 404) {
-                        errorMsg = `Error 404: Modelo "${model}" no encontrado.\n\nEste modelo puede haber sido eliminado. Prueba con "Llama 3.3 70B" que es el más estable.`;
+                    errorMsg = `Error 404: Modelo "${model}" no encontrado.`;
                     } else if (response.status === 429) {
                         errorMsg = 'Error 429: Límite de peticiones excedido.\n\nEspera un momento o verifica tus créditos en Groq.';
                     } else if (errorData.error?.message) {
@@ -1117,8 +1230,6 @@
                 document.getElementById('typingIndicator').classList.remove('active');
 
                 if (isHumanizing && messages.length <= 2) {
-                    // Si es humanizador, el primer mensaje (o el que tiene el detector)
-                    // debe mostrar el recuadro de porcentaje
                     renderHumanizerResult(assistantMessage);
                 } else {
                     addMessage('assistant', assistantMessage);
@@ -1135,6 +1246,7 @@
 
         async function handleSpecialFlow(prompt, apiMessages) {
             const container = document.getElementById('chatContainer');
+            const model = document.getElementById('modelSelect').value;
             document.getElementById('typingIndicator').classList.remove('active');
 
             // Mostrar animación de carga
@@ -1161,7 +1273,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "openai/gpt-oss-120b",
+                        model: model,
                         messages: apiMessages,
                         temperature: 0.7,
                         max_tokens: 4096
@@ -1173,7 +1285,9 @@
                 loadingDiv.remove();
 
                 if (isWebCreating) {
-                    const code = content.replace(/```html|```css|```/g, '').trim();
+                    // Robust extraction of code blocks
+                    const match = content.match(/```(?:html|css|javascript|js|xml)?\s*([\s\S]*?)```/i);
+                    const code = match ? match[1].trim() : content.trim();
                     renderCodeCanvas(code);
                     messages.push({ role: 'assistant', content: code });
                 } else if (isHumanizing) {
@@ -1190,14 +1304,22 @@
         }
 
         function highlightHTML(code) {
-            return code
+            // Simple approach: avoid recursive replacement
+            let res = code
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/(&lt;[a-z0-9]+)/gi, '<span style="color: #569cd6">$1</span>')
-                .replace(/(&lt;\/[a-z0-9]+&gt;)/gi, '<span style="color: #569cd6">$1</span>')
-                .replace(/([a-z-]+)=/gi, '<span style="color: #9cdcfe">$1</span>=')
-                .replace(/"([^"]*)"/g, '<span style="color: #ce9178">"$1"</span>');
+                .replace(/>/g, '&gt;');
+
+            // 1. Strings
+            res = res.replace(/"([^"]*)"/g, '<span style="color: #ce9178">"$1"</span>');
+
+            // 2. Tags
+            res = res.replace(/(&lt;\/?[a-z0-9]+|&gt;)/gi, '<span style="color: #569cd6">$1</span>');
+
+            // 3. Attributes (simplified - matching word before =)
+            res = res.replace(/(\s)([a-z-]+)=/gi, '$1<span style="color: #9cdcfe">$2</span>=');
+
+            return res;
         }
 
         function renderCodeCanvas(code) {
@@ -1208,13 +1330,17 @@
                 <div class="canvas-container" style="z-index: 2000; position: relative;">
                     <div class="canvas-header">
                         <span>index.html</span>
-                        <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="copy-btn" style="background: var(--accent);" onclick="openPreviewFromBtn(this)">Vista Previa</button>
+                            <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+                        </div>
                     </div>
                     <div class="canvas-content typing-text" style="pointer-events: auto;"></div>
                 </div>
             `;
             container.appendChild(canvasDiv);
             const target = canvasDiv.querySelector('.canvas-content');
+            target.dataset.rawCode = code;
 
             const highlighted = highlightHTML(code);
             typeWriter(target, highlighted, 5);
@@ -1241,16 +1367,37 @@
                 </div>
             `;
             container.appendChild(messageDiv);
-            typeWriter(messageDiv.querySelector('.typing-text'), content);
+            const target = messageDiv.querySelector('.typing-text');
+            target.dataset.rawCode = content;
+            typeWriter(target, content);
             messages.push({ role: 'assistant', content });
             saveChat();
         }
 
         function copyToClipboard(btn) {
-            const content = btn.parentElement.nextElementSibling.textContent;
+            const content = btn.closest('.canvas-container').querySelector('.canvas-content').dataset.rawCode;
             navigator.clipboard.writeText(content);
             btn.textContent = '¡Copiado!';
             setTimeout(() => btn.textContent = 'Copiar', 2000);
+        }
+
+        function openPreviewFromBtn(btn) {
+            const code = btn.closest('.canvas-container').querySelector('.canvas-content').dataset.rawCode;
+            openPreview(code);
+        }
+
+        function openPreview(code) {
+            const overlay = document.getElementById('previewOverlay');
+            const iframe = document.getElementById('previewIframe');
+            iframe.srcdoc = code;
+            overlay.style.display = 'flex';
+        }
+
+        function closePreview() {
+            const overlay = document.getElementById('previewOverlay');
+            const iframe = document.getElementById('previewIframe');
+            iframe.srcdoc = '';
+            overlay.style.display = 'none';
         }
 
         // Borrar la función duplicada de abajo si existe

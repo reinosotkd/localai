@@ -1721,7 +1721,7 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                     <div class="intro-img-placeholder">
-                        <span>[Inserta tu imagen aquí]</span>
+                        <img src="" alt="Lumina Web Tool Preview" style="display: none;" onload="this.style.display='block'">
                     </div>
                     <h2 class="intro-title">Web Creator</h2>
                     <p class="intro-desc">Convierte tus ideas en sitios web reales. Lumina diseñará y programará una página completa para ti en segundos con un estilo moderno.</p>
@@ -1778,7 +1778,7 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                     <div class="intro-img-placeholder">
-                        <span>[Inserta tu imagen aquí]</span>
+                        <img src="" alt="Lumina Detector Tool Preview" style="display: none;" onload="this.style.display='block'">
                     </div>
                     <h2 class="intro-title">Detector de IA</h2>
                     <p class="intro-desc">Pega un texto y Lumina analizará patrones artificiales para determinar si fue escrito por un humano o una IA.</p>
@@ -1812,7 +1812,7 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
                     <div class="intro-img-placeholder">
-                        <span>[Inserta tu imagen aquí]</span>
+                        <img src="" alt="Lumina Humanizer Tool Preview" style="display: none;" onload="this.style.display='block'">
                     </div>
                     <h2 class="intro-title">Humanizador</h2>
                     <p class="intro-desc">Lumina analiza y reescribe textos generados por IA para darles un toque humano, natural y evitar detectores de IA.</p>
@@ -1901,7 +1901,7 @@
             }
             
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role} hover-lift`;
+            messageDiv.className = `message ${role} hover-lift fade-bottom`;
             
             // Fase 1: Sanitización básica de seguridad
             let formattedContent = content

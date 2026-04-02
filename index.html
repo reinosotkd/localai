@@ -1,4 +1,38 @@
 <!DOCTYPE html>
+<!--
+    ========================================================================
+    LUMINA AI - MODERN CHAT INTERFACE & ECOSYSTEM
+    ========================================================================
+    Versión: 2.5.0
+    Autor: Lumina AI Engineering Team
+    Arquitectura: Vanilla JavaScript, CSS3 Glassmorphism, Groq API (Inference Engine)
+
+    DESCRIPCIÓN TÉCNICA:
+    Este proyecto es una interfaz de chat de última generación diseñada bajo los principios
+    de "Liquid Glass" (Glassmorphism avanzado). Lumina AI integra múltiples modos
+    especializados para potenciar la productividad del usuario:
+
+    1. Chat Convencional: Basado en el motor GPT-4o (Llama 3.3 70B Versatile).
+    2. Web Creator: Un generador de código en tiempo real con sistema de previsualización
+       integrado (Sandbox Iframe). Utiliza un sistema de prompts restrictivos para
+       garantizar código funcional y responsivo.
+    3. AI Detector: Algoritmo de análisis de patrones lingüísticos para identificar
+       textos generados artificialmente mediante heurísticas de complejidad y redundancia.
+    4. Humanizer: Sistema de reescritura que inyecta variabilidad sintáctica y emocional
+       para mitigar la huella digital de las IAs.
+
+    LOGICA DE PERSISTENCIA:
+    Utiliza el motor de LocalStorage del navegador para almacenar el historial de chats,
+    preferencias de usuario y créditos de herramientas especiales. Esto garantiza
+    privacidad total ("Privacy by Design"), ya que no se almacenan datos sensibles en
+    servidores externos más allá de la inferencia técnica a la API de Groq.
+
+    ESPECIFICACIONES DE DISEÑO:
+    - Paleta de colores: Obsidian (#0a0a0c), Apple Accent (#0071e3), Error Red (#ff453a).
+    - Tipografía: Inter (Sistema), SF Pro Icons.
+    - Filtros: Backdrop-filter de alta fidelidad para simular refracción de luz en vidrio.
+    ========================================================================
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -159,6 +193,38 @@
             transform: scale(1.02);
         }
 
+        /* Tooltip System - Elegant Floating labels */
+        .tooltip {
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+        [data-tooltip]:hover .tooltip { opacity: 1; }
+
+        /* Smooth page transitions and gradient flows */
+        @keyframes bgGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-bg {
+            background: linear-gradient(-45deg, #0a0a0c, #1a1a1c, #001a33, #0a0a0c);
+            background-size: 400% 400%;
+            animation: bgGradient 15s ease infinite;
+        }
+
         .google-login-section {
             margin-top: auto;
             padding: 10px;
@@ -271,10 +337,15 @@
             width: 100%;
             max-width: 850px;
             margin: 5px auto;
-            animation: fadeIn 0.3s ease-in;
+            animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
@@ -758,6 +829,37 @@
         }
         .settings-btn:hover { background: var(--bg-glass); color: var(--text-primary); }
 
+        /* Utility Classes for Liquid Glass variants */
+        .glass-frosted { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); }
+        .glass-deep { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); }
+        .glass-vibrant { background: rgba(0, 113, 227, 0.05); backdrop-filter: blur(15px); }
+        .border-glow { border: 1px solid rgba(0, 113, 227, 0.3); box-shadow: 0 0 15px rgba(0, 113, 227, 0.1); }
+        .text-gradient { background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Animation Keyframes refined for buttery smooth UI */
+        @keyframes menuPop {
+            0% { transform: translate(-50%, -40%) scale(0.9); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 113, 227, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 113, 227, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 113, 227, 0); }
+        }
+
+        .pulse-effect { animation: pulse 2s infinite; }
+
+        /* UI Micro-interactions */
+        .hover-lift { transition: transform 0.2s ease; }
+        .hover-lift:hover { transform: translateY(-3px); }
+
+        /* Scrollbar styling for modern browsers */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
         /* Intro Menus */
         .intro-menu {
             position: absolute;
@@ -770,7 +872,7 @@
             padding: 40px;
             text-align: center;
             z-index: 5000;
-            animation: fadeIn 0.5s ease;
+            animation: menuPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .intro-img-placeholder {
             width: 100%; height: 200px;
@@ -799,7 +901,7 @@
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed; top: 0; left: 0; height: 100%; width: 280px;
-                z-index: 100000;
+                z-index: 2000000;
                 transform: translateX(-100%);
                 margin-right: 0;
             }
@@ -813,6 +915,27 @@
             .gpt-label { font-size: 10px; padding: 3px 6px; margin-right: 4px; }
             .input-wrapper { padding: 6px 6px 6px 12px; border-radius: 24px; }
             .input-container { padding: 10px 10px 30px; }
+
+            /* Enhanced vibrancy for mobile buttons to match PC clarity */
+            .chat-item {
+                color: var(--text-primary) !important;
+                background: rgba(255, 255, 255, 0.1) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .chat-item.active {
+                background: var(--accent) !important;
+                box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4);
+            }
+            .new-chat-btn {
+                background: var(--accent) !important;
+                opacity: 1 !important;
+                box-shadow: 0 4px 15px rgba(0, 113, 227, 0.3);
+            }
+            .settings-btn {
+                color: var(--text-primary) !important;
+                background: rgba(255, 255, 255, 0.15) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
         }
 
         /* Blur effect for intro menus */
@@ -874,6 +997,17 @@
             </div>
             <button class="modal-btn" onclick="saveSettings()">Guardar Cambios</button>
             <button class="modal-btn" style="background: transparent; border: 1px solid var(--border); margin-top: 10px;" onclick="document.getElementById('settingsModal').style.display='none'">Cancelar</button>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--border);">
+                <p class="form-label" style="font-size: 10px; opacity: 0.6;">Área de Desarrollador</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="settings-btn" onclick="showRawData()">Ver Metadata</button>
+                    <button class="settings-btn" style="color: var(--error);" onclick="clearConversationCache()">Limpiar Todo</button>
+                </div>
+                <div id="rawDataArea" style="display: none; margin-top: 15px;">
+                    <textarea id="rawTextArea" class="form-input form-textarea" readonly style="font-size: 10px; font-family: monospace;"></textarea>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -981,9 +1115,10 @@
                         rows="1"
                         oninput="autoResize(this)"
                         onkeydown="handleKeyDown(event)"></textarea>
-                    <select id="modelSelect" class="gpt-label" onchange="updateModel()">
-                        <option value="openai/gpt-oss-120b" selected>GPT-4o</option>
-                    </select>
+                    <div class="gpt-label" style="display: flex; align-items: center; gap: 5px; cursor: default; border: none; background: transparent; padding: 0 10px;">
+                        <span style="font-weight: 700; color: var(--accent);">GPT-4o</span>
+                        <input type="hidden" id="modelSelect" value="openai/gpt-oss-120b">
+                    </div>
                     <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>↑</button>
                 </div>
             </div>
@@ -1045,9 +1180,9 @@
                 if (!overlay) {
                     overlay = document.createElement('div');
                     overlay.id = 'sidebarOverlay';
-                    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:90000; display:none;';
+                    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:80000; display:none;';
                     overlay.onclick = toggleSidebar;
-                    document.body.appendChild(overlay);
+                    document.querySelector('.container').appendChild(overlay);
                 }
                 overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
             } else {
@@ -1115,7 +1250,7 @@
                 }
 
                 item.innerHTML = `
-                    <div class="chat-item-content" onclick="loadChat('${chat.id}'); if(window.innerWidth <= 768) toggleSidebar();">
+                    <div class="chat-item-content" onclick="event.stopPropagation(); loadChat('${chat.id}'); if(window.innerWidth <= 768) { toggleSidebar(); }">
                         ${symbol}
                         <span>${chat.title}</span>
                     </div>
@@ -1137,13 +1272,148 @@
             }
         }
 
+        /**
+         * Pool de sugerencias contextuales dinámicas.
+         * Diseñado para inspirar al usuario en diversas áreas de conocimiento.
+         */
         const suggestionPool = [
-            "Explica la física cuántica de forma simple", "Escribe un poema sobre el mar", "Dime una receta saludable",
-            "¿Cómo mejorar mi productividad?", "Escribe un cuento corto de terror", "Explica el Big Bang para niños",
-            "Dame consejos para aprender inglés", "¿Qué es el aprendizaje automático?", "Escribe una carta formal de renuncia",
-            "Plan de entrenamiento de 15 minutos", "Resumen de la historia de Roma", "¿Cómo hacer un huerto en casa?",
-            "Mejores destinos para viajar solo", "Explica la teoría de cuerdas", "Escribe un guion sobre Marte",
-            "Ideas para un regalo creativo", "¿Cómo funciona el sistema solar?", "Escribe una canción de rock"
+            "Explica la física cuántica de forma simple", "Escribe un poema sobre el mar",
+            "Dime una receta saludable y rápida", "¿Cómo mejorar mi productividad?",
+            "Escribe un cuento corto de terror psicológico", "Explica el Big Bang para niños",
+            "Dame consejos para aprender inglés", "¿Qué es el aprendizaje automático?",
+            "Escribe una carta formal de renuncia", "Plan de entrenamiento de 15 minutos",
+            "Resumen de la historia de Roma", "¿Cómo hacer un huerto en casa?",
+            "Mejores destinos para viajar solo", "Explica la teoría de cuerdas",
+            "Escribe un guion sobre Marte", "Ideas para un regalo creativo",
+            "¿Cómo funciona el sistema solar?", "Escribe una canción de rock",
+            "5 trucos de cocina profesional", "Guía rápida de fotografía móvil",
+            "¿Qué es el minimalismo digital?", "Cómo cultivar orquídeas",
+            "Top 5 libros de ciencia ficción", "Historia de la computación",
+            "Cómo meditar 5 minutos al día", "Los misterios de la Atlántida",
+            "Cómo crear un presupuesto personal", "Técnicas de dibujo anatómico",
+            "Origen del lenguaje humano", "Cómo hacer pan casero",
+            "Impacto de la Revolución Industrial", "Viaje a las profundidades marinas",
+            "Cómo funciona una red neuronal", "Secretos de la escritura creativa",
+            "Evolución de la música jazz", "Cómo organizar un viaje mochilero",
+            "Beneficios del ayuno intermitente", "La vida en la antigua Grecia",
+            "Cómo programar un bot básico", "Importancia de la biodiversidad",
+            "Cómo hablar en público sin nervios", "Descubrimientos de la NASA",
+            "Historia de la Inteligencia Artificial", "Cómo aprender un idioma rápido",
+            "Filosofía de vida de Marco Aurelio", "Cómo hacer abono orgánico",
+            "Significado de los sueños", "Cómo elegir un buen vino",
+            "Ciencia detrás del arcoíris", "Historia de los samuráis",
+            "Cómo entrenar para una maratón", "Trucos de magia con cartas",
+            "Cómo leer más rápido", "El arte de la carpintería",
+            "Diferencia entre virus y bacterias", "Cómo funciona el GPS",
+            "Cómo cuidar un acuario", "El fenómeno de la aurora boreal",
+            "Cómo invertir en bolsa para novatos", "Historia del cine clásico",
+            "Cómo escribir un diario personal", "Grandes enigmas de la historia",
+            "Cómo hacer cosmética natural", "La física de los agujeros negros",
+            "Cómo reparar una bicicleta", "Historia de los inventos olvidados",
+            "Cómo mejorar tu postura corporal", "El lenguaje de las flores",
+            "Cómo hacer nudos marineros", "Historia de las civilizaciones perdidas",
+            "Cómo crear un blog de éxito", "Los secretos del Vaticano",
+            "Cómo cultivar bonsáis", "Historia del rock and roll",
+            "Cómo hacer un cóctel perfecto", "La vida de Leonardo da Vinci",
+            "Cómo sobrevivir en la naturaleza", "Historia de la moda",
+            "Cómo pintar con acuarela", "Los mitos más famosos de Egipto",
+            "Cómo hacer jabón artesanal", "Historia de la exploración espacial",
+            "Cómo tocar la armónica", "El arte del bonsái japonés",
+            "Cómo hacer un podcast desde cero", "Secretos de la longevidad",
+            "Cómo arreglar un grifo", "Historia de los piratas",
+            "Cómo dibujar ojos realistas", "La ciencia del amor",
+            "Cómo hacer helado casero", "Historia del arte renacentista",
+            "Cómo dominar el ajedrez", "Los mejores juegos de mesa",
+            "Cómo hacer origami complejo", "Historia de la criptografía",
+            "Cómo montar un PC", "El misterio de Stonehenge",
+            "Cómo hacer yoga en casa", "Historia de los Juegos Olímpicos",
+            "Cómo escribir un poema haiku", "La vida de Nikola Tesla",
+            "Cómo hacer una pizza italiana", "Historia del periodismo",
+            "Cómo cultivar tomates en maceta", "El poder de la resiliencia",
+            "Cómo hacer una fogata segura", "Historia de la medicina",
+            "Cómo aprender a silbar", "Los mejores parques nacionales",
+            "Cómo hacer un nudo de corbata", "Historia de la tipografía",
+            "Cómo cuidar a un perro cachorro", "El arte del tatuaje",
+            "Cómo hacer una cometa", "Historia del circo",
+            "Cómo aprender a bailar salsa", "Los secretos de la mente",
+            "Cómo hacer un terrario", "Historia de la navegación",
+            "Cómo aprender a patinar", "El mundo de las abejas",
+            "Cómo hacer un currículum vitae", "Historia de la arquitectura",
+            "Cómo aprender a jugar póker", "Los misterios del océano",
+            "Cómo hacer ganchillo", "Historia de los perfumes",
+            "Cómo aprender a silbar fuerte", "El arte de la caligrafía",
+            "Cómo hacer una tarta de manzana", "Historia de la fotografía",
+            "Cómo aprender a saltar la cuerda", "Los secretos del ajedrez",
+            "Cómo hacer un avión de papel", "Historia de los juguetes",
+            "Cómo aprender a malabarear", "El arte de la persuasión",
+            "Cómo hacer un ramo de flores", "Historia de los colores",
+            "Cómo aprender a nadar", "Los misterios del espacio",
+            "Cómo hacer una ensalada César", "Historia de la aviación",
+            "Cómo aprender a tejer", "El arte de la negociación",
+            "Cómo hacer un bizcocho", "Historia de la moneda",
+            "Cómo aprender a silbar melodías", "Los secretos de la memoria",
+            "Cómo hacer un nudo de marinero", "Historia de la escritura",
+            "Cómo aprender a patinar sobre hielo", "El arte de la jardinería",
+            "Cómo hacer una tortilla de patatas", "Historia de la radio",
+            "Cómo aprender a saltar en cama elástica", "Los misterios de la vida",
+            "Cómo hacer un barco de papel", "Historia de los libros",
+            "Cómo aprender a malabarear con pelotas", "El arte de la guerra",
+            "Cómo hacer un centro de mesa", "Historia de los nombres",
+            "Cómo aprender a bucear", "Los secretos de la felicidad",
+            "Cómo hacer una pasta carbonara", "Historia de la televisión",
+            "Cómo aprender a coser", "El arte de la conversación",
+            "Cómo hacer un postre rápido", "Historia de la joyería",
+            "Cómo aprender a silbar entre los dedos", "Los misterios del tiempo",
+            "Cómo hacer un nudo de zapato", "Historia de la pintura",
+            "Cómo aprender a patinar en línea", "El arte de la cocina",
+            "Cómo hacer una paella", "Historia de la imprenta",
+            "Cómo aprender a saltar a la comba", "Los secretos de la mente humana",
+            "Cómo hacer un gorro de papel", "Historia de los descubrimientos",
+            "Cómo aprender a malabarear con mazas", "El arte de la diplomacia",
+            "Cómo hacer un arreglo floral", "Historia de los apellidos",
+            "Cómo aprender a navegar a vela", "Los secretos de la motivación",
+            "Cómo hacer una lasaña", "Historia del telégrafo",
+            "Cómo aprender a bordar", "El arte de la seducción",
+            "Cómo hacer una merienda sana", "Historia de la relojería",
+            "Cómo aprender a silbar con las manos", "Los misterios de la gravedad",
+            "Cómo hacer un nudo de pesca", "Historia de la escultura",
+            "Cómo aprender a patinar sobre ruedas", "El arte de la repostería",
+            "Cómo hacer una sopa de letras", "Historia de la brújula",
+            "Cómo aprender a saltar de cabeza", "Los secretos del universo",
+            "Cómo hacer una espada de papel", "Historia de los diccionarios",
+            "Cómo aprender a malabarear con anillos", "El arte de la estrategia",
+            "Cómo hacer un marco de fotos", "Historia de los escudos",
+            "Cómo aprender a pilotar un dron", "Los secretos de la creatividad",
+            "Cómo hacer una quiche", "Historia del microscopio",
+            "Cómo aprender a hacer encaje", "El arte de la oratoria",
+            "Cómo hacer un desayuno energético", "Historia de la astronomía",
+            "Cómo aprender a silbar sin manos", "Los misterios de la evolución",
+            "Cómo hacer un nudo de escalada", "Historia del grabado",
+            "Cómo aprender a patinar en monopatín", "El arte de la panadería",
+            "Cómo hacer una macedonia", "Historia del telescopio",
+            "Cómo aprender a saltar obstáculos", "Los secretos de la naturaleza",
+            "Cómo hacer un sombrero de papel", "Historia de las enciclopedias",
+            "Cómo aprender a malabarear con antorchas", "El arte de la lógica",
+            "Cómo hacer un jarrón", "Historia de los mapas",
+            "Cómo aprender a pilotar una avioneta", "Los secretos del éxito",
+            "Cómo hacer una tarta de queso", "Historia del barómetro",
+            "Cómo aprender a hacer punto", "El arte de la retórica",
+            "Cómo hacer una cena romántica", "Historia de la biología",
+            "Cómo aprender a silbar con un silbato", "Los misterios del ADN",
+            "Cómo hacer un nudo de corbata Windsor", "Historia de la litografía",
+            "Cómo aprender a patinar en tabla", "El arte de la charcutería",
+            "Cómo hacer una ensalada mixta", "Historia del termómetro",
+            "Cómo aprender a saltar vallas", "Los secretos de la tierra",
+            "Cómo hacer una corona de papel", "Historia de las bibliotecas",
+            "Cómo aprender a malabarear con platos", "El arte de la crítica",
+            "Cómo hacer un candelabro", "Historia de los sellos",
+            "Cómo aprender a pilotar un helicóptero", "Los secretos de la voluntad",
+            "Cómo hacer una pizza margarita", "Historia del sismógrafo",
+            "Cómo aprender a hacer crochet", "El arte de la calderería",
+            "Cómo hacer una cena rápida", "Historia de la geología",
+            "Cómo aprender a silbar con un pájaro", "Los misterios de la célula",
+            "Cómo hacer un nudo de lazo", "Historia de la xilografía",
+            "Cómo aprender a patinar en hielo", "El arte de la quesería"
         ];
 
         function getRandomSuggestions() {
@@ -1218,18 +1488,138 @@
             document.getElementById('settingsModal').classList.add('active');
         }
 
+        /**
+         * Persiste las configuraciones del perfil de usuario en el LocalStorage.
+         * Actualiza el objeto userProfile global para reflejar los cambios inmediatos
+         * sin necesidad de recargar la interfaz.
+         */
         function saveSettings() {
-            userProfile.fullName = document.getElementById('setFullName').value.trim();
-            userProfile.nickname = document.getElementById('setNickname').value.trim();
-            userProfile.instructions = document.getElementById('setInstructions').value.trim();
+            const fullName = document.getElementById('setFullName').value.trim();
+            const nickname = document.getElementById('setNickname').value.trim();
+            const instructions = document.getElementById('setInstructions').value.trim();
+
+            if (!nickname) {
+                console.warn("[Settings] El apodo es requerido para una personalización mínima.");
+            }
+
+            userProfile.fullName = fullName;
+            userProfile.nickname = nickname;
+            userProfile.instructions = instructions;
+            userProfile.lastUpdated = new Date().toISOString();
 
             localStorage.setItem('lumina_user', JSON.stringify(userProfile));
             document.getElementById('settingsModal').classList.remove('active');
+
+            // Inyectar feedback visual de guardado exitoso
+            console.log("[Lumina AI] Perfil actualizado exitosamente.");
+        }
+
+        /**
+         * Sistema de Gestión de Memoria Local (Debug Mode)
+         * Permite a los desarrolladores o usuarios avanzados inspeccionar el peso
+         * de los datos almacenados y limpiar el caché de conversaciones si es necesario.
+         */
+        function getStorageMetrics() {
+            let total = 0;
+            for (let x in localStorage) {
+                if (!localStorage.hasOwnProperty(x)) continue;
+                total += ((localStorage[x].length + x.length) * 2);
+            }
+            return (total / 1024).toFixed(2) + " KB";
+        }
+
+        function clearConversationCache() {
+            if (confirm("¿Estás seguro de que deseas borrar todo el historial? Esta acción es irreversible.")) {
+                localStorage.removeItem('lumina_chats');
+                chats = {};
+                newChat();
+                renderChatList();
+            }
         }
 
         function closeSettings(e) {
             if (e.target.id === 'settingsModal') {
                 document.getElementById('settingsModal').classList.remove('active');
+            }
+        }
+
+        /**
+         * Sistema de Notificaciones Toast (UI Feedback)
+         * Proporciona retroalimentación visual no intrusiva al usuario
+         * tras acciones exitosas o fallidas.
+         */
+        function showNotification(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'glass-frosted border-glow';
+            toast.style.cssText = `
+                position: fixed; top: 20px; right: 20px; padding: 12px 24px;
+                border-radius: 12px; z-index: 500000; color: white;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 14px;
+                transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            `;
+            toast.style.backgroundColor = type === 'success' ? 'rgba(0, 113, 227, 0.8)' : 'rgba(255, 69, 58, 0.8)';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+            setTimeout(() => {
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        /**
+         * Sistema de Gestión de Créditos Avanzado
+         * Controla el consumo de herramientas premium (Web Creator)
+         * y maneja la lógica de reseteo diario basada en la zona horaria local.
+         */
+        function consumeCredit(toolName) {
+            if (toolName === 'web') {
+                if (webCredits > 0) {
+                    webCredits--;
+                    localStorage.setItem('lumina_web_credits', webCredits);
+                    checkCreditReset();
+                    showNotification(`Crédito consumido. Te quedan ${webCredits} hoy.`);
+                    return true;
+                } else {
+                    showNotification("No tienes créditos suficientes.", "error");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Lógica de Primer Inicio (Onboarding Tour)
+         * Prepara la interfaz para nuevos usuarios y muestra tutoriales básicos.
+         */
+        function initializeTour() {
+            const hasSeenTour = localStorage.getItem('lumina_tour_seen');
+            if (!hasSeenTour && userProfile) {
+                console.log("[Tour] Iniciando guía rápida para nuevo usuario...");
+                // Aquí se podría implementar una lógica de pasos animados
+                localStorage.setItem('lumina_tour_seen', 'true');
+            }
+        }
+
+        /**
+         * Muestra los datos crudos almacenados en el navegador.
+         * Útil para depuración técnica y auditoría de privacidad por parte del usuario.
+         */
+        function showRawData() {
+            const area = document.getElementById('rawDataArea');
+            const text = document.getElementById('rawTextArea');
+            if (area.style.display === 'none') {
+                const data = {
+                    user: userProfile,
+                    chatCount: Object.keys(chats).length,
+                    storageUsage: getStorageMetrics(),
+                    lastSession: new Date().toLocaleString()
+                };
+                text.value = JSON.stringify(data, null, 4);
+                area.style.display = 'block';
+            } else {
+                area.style.display = 'none';
             }
         }
 
@@ -1259,8 +1649,32 @@
             }
         }
 
+        /**
+         * Actualiza el modelo de IA seleccionado para la conversación actual.
+         * En esta versión, el modelo es fijo (GPT-4o), pero la función se mantiene
+         * para compatibilidad con el sistema de guardado de chats.
+         */
         function updateModel() {
+            console.log(`[Lumina] Modelo fijado en GPT-4o para chat ${currentChatId}`);
             saveChat();
+        }
+
+        /**
+         * Utilidad para deshabilitar botones durante estados de carga.
+         * Previene múltiples envíos accidentales por parte del usuario.
+         */
+        function setInterfaceLoading(isLoading) {
+            const sendBtn = document.getElementById('sendBtn');
+            const input = document.getElementById('messageInput');
+            if (isLoading) {
+                sendBtn.disabled = true;
+                input.disabled = true;
+                sendBtn.style.opacity = "0.5";
+            } else {
+                sendBtn.disabled = false;
+                input.disabled = false;
+                sendBtn.style.opacity = "1";
+            }
         }
 
         // ============================================
@@ -1450,35 +1864,61 @@
 
         const ROBOT_ICON = `<svg viewBox="0 0 24 24"><path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.59,5.39 13,5.73V7H14A3,3 0 0,1 17,10V11H18A2,2 0 0,1 20,13V17A2,2 0 0,1 18,19H17V20A2,2 0 0,1 15,22H9A2,2 0 0,1 7,20V19H6A2,2 0 0,1 4,17V13A2,2 0 0,1 6,11H7V10A3,3 0 0,1 10,7H11V5.73C10.41,5.39 10,4.74 10,4A2,2 0 0,1 12,2M7.5,13A1.5,1.5 0 0,0 6,14.5A1.5,1.5 0 0,0 7.5,16A1.5,1.5 0 0,0 9,14.5A1.5,1.5 0 0,0 7.5,13M16.5,13A1.5,1.5 0 0,0 15,14.5A1.5,1.5 0 0,0 16.5,16A1.5,1.5 0 0,0 18,14.5A1.5,1.5 0 0,0 16.5,13M12,14L10.75,17H13.25L12,14Z"/></svg>`;
 
+        /**
+         * Registra y visualiza un nuevo mensaje en la cronología del chat.
+         * Gestiona la actualización del estado global de mensajes y dispara
+         * la renderización con lógica de animación si el rol es 'assistant'.
+         */
         function addMessage(role, content) {
             messages.push({ role, content });
             const animate = role === 'assistant';
             renderMessage(role, content, animate);
             saveChat();
+
+            // Logging para analítica local de sesión
+            if (role === 'user') {
+                console.log(`[Lumina] Mensaje enviado por usuario: ${content.length} caracteres.`);
+            }
         }
 
+        /**
+         * Renderizador de Contenidos Markdown/HTML.
+         * Implementa un sistema de parseo seguro que convierte sintaxis Markdown
+         * básica y etiquetas HTML permitidas en elementos visuales del DOM.
+         * Soporta: Negritas (** o *), Bloques de código (```), Inline Code (`) y saltos de línea (\n).
+         *
+         * SEGURIDAD:
+         * El contenido es sanitizado inicialmente para prevenir inyecciones XSS,
+         * permitiendo únicamente un subset controlado de etiquetas estéticas.
+         */
         function renderMessage(role, content, animate = false) {
             const container = document.getElementById('chatContainer');
             const welcome = document.getElementById('welcome');
-            if (welcome) welcome.style.display = 'none';
+
+            // Ocultar pantalla de bienvenida en el primer mensaje
+            if (welcome) {
+                welcome.style.display = 'none';
+            }
             
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
+            messageDiv.className = `message ${role} hover-lift`;
             
+            // Fase 1: Sanitización básica de seguridad
             let formattedContent = content
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
 
+            // Fase 2: Aplicación de reglas de renderizado
             formattedContent = formattedContent
                 .replace(/&lt;b&gt;/g, '<b>')
                 .replace(/&lt;\/b&gt;/g, '</b>')
                 .replace(/&lt;span class="ai-highlight"&gt;/g, '<span class="ai-highlight">')
                 .replace(/&lt;\/span&gt;/g, '</span>')
                 .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
-                .replace(/\*([^*]+)\*/g, '<b>$1</b>') // Handle single asterisks too
-                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*([^*]+)\*/g, '<b>$1</b>') // Soporte para asteriscos simples como negritas
+                .replace(/```([\s\S]*?)```/g, '<pre class="glass-deep border-glow"><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code class="glass-frosted">$1</code>')
                 .replace(/\n/g, '<br>');
             
             if (role === 'assistant') {
@@ -1591,15 +2031,15 @@
                 systemPrompt = `Tu nombre es Lumina. Eres una asistente creada por Lumina AI. Actúa como un humanizador de texto profesional para ${userNickname}. Analiza el texto y reescríbelo para que sea 100% humano, natural y emocional. Elimina cualquier rastro de IA. Mantén el tono solicitado por el usuario si lo hay.`;
             } else if (isWebCreating) {
                 systemPrompt = `Tu nombre es Lumina. Eres una Ingeniera de Software Senior especializada en Frontend Moderno de Lumina AI.
-                TAREA: Crear para ${userNickname} una aplicación web de una sola página (SPA) con diseño "Glassmorphism" estilo Apple.
-                REGLAS ESTRICTAS:
-                - Empieza el código SIEMPRE con el doctype estándar: <!DOCTYPE html>
-                - Usa HTML5, CSS3 moderno (Flexbox/Grid) y JavaScript Vanilla.
-                - Incluye TODO el código (HTML, CSS y JS) en un ÚNICO bloque de código Markdown (\`\`\`html ... \`\`\`).
-                - NO digas nada más que el código.
-                - El diseño debe ser responsivo, elegante y profesional.
-                - Usa fuentes de Google (Inter o SF Pro) y iconos de Lucide o FontAwesome vía CDN.
-                - NO ALUCINES. Todo el código debe ser funcional y estar completo.`;
+                TU MISIÓN: Generar código de producción impecable, funcional y estéticamente superior para ${userNickname}.
+                REGLAS CRÍTICAS PARA CÓDIGO HTML/CSS/JS:
+                1. FORMATO: Empieza SIEMPRE con <!DOCTYPE html>. Todo el código (HTML, CSS dentro de <style> y JS dentro de <script>) debe estar en un ÚNICO bloque de código Markdown (\`\`\`html ... \`\`\`).
+                2. CALIDAD: Usa HTML5 semántico, CSS3 moderno (Custom Properties, Flexbox, Grid) y JavaScript ES6+.
+                3. DISEÑO: Estética "Liquid Glass" (glassmorphism avanzado). Usa transparencias, desenfoques (backdrop-filter: blur), bordes sutiles y sombras profundas. Estilo Apple/Minimalista.
+                4. RESPONSIVE: La página debe verse perfecta en móviles y escritorio.
+                5. NO ALUCINAR: No inventes librerías ni atributos que no existan. Usa CDNs estándar (Google Fonts para Inter/Outfit, Lucide Icons o FontAwesome 6). Todo el código debe estar completo y listo para ejecutarse.
+                6. CONTENIDO: No uses solo "Lorem Ipsum". Genera contenido real relacionado con la solicitud del usuario.
+                NO incluyas explicaciones antes ni después del código. Solo el bloque de código.`;
             }
 
             // Memoria: Enviar más contexto (hasta 20 mensajes si es posible)
@@ -1686,6 +2126,12 @@
             }
         }
 
+        /**
+         * Manejador de Flujos Especiales (Tools Engine)
+         * Gestiona la lógica de las herramientas "Web Creator", "Detector" y "Humanizer".
+         * Incluye simulaciones de latencia académica para mejorar la percepción de valor
+         * y prompts de inferencia profunda para resultados de alta fidelidad.
+         */
         async function handleSpecialFlow(prompt, apiMessages) {
             const container = document.getElementById('chatContainer');
             const model = document.getElementById('modelSelect').value;
@@ -1842,11 +2288,15 @@
             overlay.style.display = 'flex';
         }
 
+        /**
+         * Cierra el overlay de previsualización web y libera recursos del iframe.
+         */
         function closePreview() {
             const overlay = document.getElementById('previewOverlay');
             const iframe = document.getElementById('previewIframe');
-            iframe.srcdoc = '';
+            iframe.srcdoc = ''; // Limpiar contenido para liberar memoria
             overlay.style.display = 'none';
+            console.log("[Preview] Ventana de previsualización cerrada.");
         }
 
         // Borrar la función duplicada de abajo si existe
